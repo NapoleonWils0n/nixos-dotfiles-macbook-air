@@ -812,6 +812,8 @@
 ;; youtube-sub-extractor.el
 ;; ----------------------------------------------------------------------------------
 
+(require 'youtube-sub-extractor)
+
 ;; display timestamps on the left so we can use them with mpv.el
 (setq youtube-sub-extractor-timestamps 'left-side-text)
 
