@@ -46,6 +46,7 @@
 (async-bytecomp-package-mode 1)
 (setq async-bytecomp-allowed-packages '(all))
 
+
 ;; ----------------------------------------------------------------------------------
 ;; general settings
 ;; ----------------------------------------------------------------------------------
@@ -158,8 +159,7 @@
 (tab-bar-mode 1)
 
 ;; tab bar menu bar button
-(setq tab-bar-menu-bar-button "👾")
-
+(setq tab-bar-menu-bar-button "👿")
 
 ;; ----------------------------------------------------------------------------------
 ;; evil
@@ -190,10 +190,6 @@
 ;; tree-sitter
 (require 'treesit)
 
-;; nix-mode
-(require 'nix-mode)
-(add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-mode))
-
 ;; ob-async
 (require 'ob-async)
 
@@ -207,21 +203,6 @@
 (setq undo-tree-visualizer-timestamps t)
 (setq undo-tree-visualizer-diff t)
 
-;;(require 'openwith)
-;;(setq openwith-associations
-;;      (list
-;;;;       (list (openwith-make-extension-regexp
-;;;;              '("mpg" "mpeg" "mp3" "mp4" "m4v"
-;;;;                "avi" "wmv" "wav" "mov" "flv"
-;;;;                "ogm" "ogg" "mkv" "webm"))
-;;;;          "mpv --fs --fs-screen=1"
-;;;;          '(file))
-;;       (list (openwith-make-extension-regexp
-;;              '("pdf"))
-;;             "evince"
-;;             '(file))))
-;;
-;;(openwith-mode 1)
 
 ;; ----------------------------------------------------------------------------------
 ;; tree-sitter
@@ -297,9 +278,6 @@
 
 ;; eww browser text width
 (setq shr-width 80)
-
-;; emacs 28 - dictionary server
-(setq dictionary-server "dict.org")
 
 ;; company auto complete
 (setq company-idle-delay 0)
@@ -425,7 +403,7 @@
 ;; ----------------------------------------------------------------------------------
 
 ;; magit
-(keymap-global-set "C-x g" 'magit-status)
+;;(keymap-global-set "C-x g" 'magit-status)
 
 ;; org-capture
 (keymap-global-set "C-c c" 'org-capture)
@@ -460,6 +438,9 @@
 (setq dired-kill-when-opening-new-dired-buffer t)
 
 ;; dired directory listing options for ls
+(setq dired-use-ls-dired t)
+;; freebsd gls fix
+(setq insert-directory-program "/usr/local/bin/gls")
 (setq dired-listing-switches "-ahlv")
 
 ;; hide dotfiles
@@ -496,6 +477,10 @@
 (defun no-hide-overlays (orig-fun &rest args)
 (setq org-babel-hide-result-overlays nil))
 (advice-add 'ob-async-org-babel-execute-src-block :before #'no-hide-overlays)
+
+;; & open pdf's with zatuhra
+(setq dired-guess-shell-alist-user
+      '(("\\.pdf$" "zathura")))
 
 ;; ----------------------------------------------------------------------------------
 ;; dired-fd
@@ -537,8 +522,9 @@
                                '((tramp-parse-sconfig "/etc/ssh_config")
                                  (tramp-parse-sconfig "~/.ssh/config")))
 
-;; set tramp shell to sh to avoid zsh problems
-(with-eval-after-load 'tramp '(setenv "SHELL" "/bin/sh"))
+;; set tramp shell to bash to avoid zsh problems
+(setenv "SHELL" "/bin/sh")
+(setq tramp-allow-unsafe-temporary-files t)
 
 ;; tramp backup directory
 (add-to-list 'backup-directory-alist (cons tramp-file-name-regexp nil))
@@ -581,11 +567,16 @@
 ;; asynchronous tangle
 (setq org-export-async-debug t)
 
+
 (setq org-capture-templates
     '(("w" "web site" entry
       (file+olp "~/git/personal/bookmarks/bookmarks.org" "sites")
       "** [[%c][%^{link-description}]]"
-       :empty-lines-after 1)))
+       :empty-lines-after 1)
+      ("v" "video url" entry
+       (file+olp "~/git/personal/bookmarks/video.org" "links")
+       "** [[video:%c][%^{link-description}]]"
+        :empty-lines-after 1)))
 
 ;; refile
 (setq org-refile-targets '((nil :maxlevel . 2)
@@ -621,7 +612,12 @@
      ("\\.mov\\'" . "mpv %s")
      ("\\.pdf\\'" . default))))
 
+  
 (custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(org-link ((t (:inherit link :underline nil)))))
 
 (defadvice org-capture
@@ -692,20 +688,94 @@
 
 
 ;; ----------------------------------------------------------------------------------
+;; wayland clipboard
+;; ----------------------------------------------------------------------------------
+
+;; credit: yorickvP on Github
+(setq wl-copy-process nil)
+(defun wl-copy (text)
+  (setq wl-copy-process (make-process :name "wl-copy"
+                                      :buffer nil
+                                      :command '("wl-copy" "-f" "-n")
+                                      :connection-type 'pipe
+                                      :noquery t))
+  (process-send-string wl-copy-process text)
+  (process-send-eof wl-copy-process))
+(defun wl-paste ()
+  (if (and wl-copy-process (process-live-p wl-copy-process))
+      nil ; should return nil if we're the current paste owner
+      (shell-command-to-string "wl-paste -n | tr -d \r")))
+(setq interprogram-cut-function 'wl-copy)
+(setq interprogram-paste-function 'wl-paste)
+
+
+;; ----------------------------------------------------------------------------------
 ;; mpv.el
 ;; ----------------------------------------------------------------------------------
 
 ;; mpv-default-options play fullscreen on second display
-(setq mpv-default-options '("--fs" "--fs-screen=1"))
+(setq mpv-default-options '("--fs" "--fs-screen-name=DP-3"))
 
-;; org-link-set-parameters
-;;(org-link-set-parameters "mpv" :follow #'mpv-play)
-;;(defun org-mpv-complete-link (&optional arg)
-;;  (replace-regexp-in-string
-;;   "file:" "mpv:"
-;;   (org-link-complete-file arg)
-;;   t t))
+;; get the youtube title from url on the clipboard
+(defun yt-get-title ()
+  "get the youtube title from a url on the clipboard"
+  (interactive)
+  (let ((yt-url (current-kill 0 t)))
+    (async-shell-command (concat
+                   "yt-dlp --skip-download --print \"%(title)s\" " (shell-quote-argument yt-url)))))
 
+
+;; yank the async buffer
+(defun yank-async ()
+  "yank async buffer"
+  (interactive)
+    (yank (kill-new (with-current-buffer "*Async Shell Command*"
+    (buffer-substring-no-properties (point-min) (point-max))))))
+
+
+;; create a video: link type that opens a url using mpv-play-remote-video
+(org-link-set-parameters "video"
+                         :follow #'mpv-play-remote-video
+                         :store #'org-video-store-link)
+
+
+;; org video store link
+(defun org-video-store-link ()
+  "Store a link to a video url."
+      (org-link-store-props
+       :type "video"
+       :link link
+       :description description))
+
+
+;; mpv-play-remote-video
+(defun mpv-play-remote-video (url &rest args)
+  "Start an mpv process playing the video stream at URL."
+  (interactive)
+  (unless (mpv--url-p url)
+    (user-error "Invalid argument: `%s' (must be a valid URL)" url))
+  (if (not mpv--process)
+      ;; mpv isnt running play file
+      (mpv-start url)
+      ;; mpv running append file to playlist
+    (mpv--playlist-append url)))
+
+
+;; mpv-play-clipboard - play url from clipboard
+(defun mpv-play-clipboard ()
+  "Start an mpv process playing the video stream at URL."
+  (interactive)
+  (let ((url (current-kill 0 t)))
+  (unless (mpv--url-p url)
+    (user-error "Invalid argument: `%s' (must be a valid URL)" url))
+  (if (not mpv--process)
+      ;; mpv isnt running play file
+      (mpv-start url)
+      ;; mpv running append file to playlist
+    (mpv--playlist-append url))))
+
+
+;; create a mpv: link type that opens a file using mpv-play
 (defun org-mpv-complete-link (&optional arg)
   (replace-regexp-in-string
    "file:" "mpv:"
@@ -944,7 +1014,7 @@
   (interactive)
   (let ((url (shr-url-at-point current-prefix-arg)))
     (async-shell-command (concat
-                    "tsp yt-dlp -P ${HOME}/Downloads " (shell-quote-argument url)))))
+                    "ts yt-dlp -P ${HOME}/Downloads " (shell-quote-argument url)))))
 
 
 (evil-collection-define-key 'normal 'eww-mode-map
@@ -960,7 +1030,7 @@
   (interactive)
   (let ((url (shr-url-at-point current-prefix-arg)))
     (async-shell-command (concat
-                    "tsp aria2c -d ${HOME}/Downloads " (shell-quote-argument url)))))
+                    "ts aria2c -d ${HOME}/Downloads " (shell-quote-argument url)))))
 
 
 (evil-collection-define-key 'normal 'eww-mode-map
@@ -1006,7 +1076,6 @@
 ;; start ednc-mode
 (ednc-mode 1)
 
-;; open notications
 (defun show-notification-in-buffer (old new)
   (let ((name (format "Notification %d" (ednc-notification-id (or old new)))))
     (with-current-buffer (get-buffer-create name)
@@ -1035,8 +1104,7 @@
 
 (add-hook 'ednc-view-mode-hook 'noevil)
 
-
-;; ----------------------------------------------------------------------------------
+; ----------------------------------------------------------------------------------
 ;; elfeed
 ;; ----------------------------------------------------------------------------------
 
@@ -1064,7 +1132,7 @@
 
 ;; mpv play fullscreen on second display
 (setq elfeed-tube-mpv-options
-  '("--force-window=yes" "--fs" "--fs-screen=1"))
+  '("--force-window=yes" "--fs" "--fs-screen-name=DP-3"))
 
 ; elfeed evil
 (add-to-list 'evil-motion-state-modes 'elfeed-search-mode)
