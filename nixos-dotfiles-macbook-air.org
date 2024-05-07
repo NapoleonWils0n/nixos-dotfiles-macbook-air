@@ -48,6 +48,7 @@ emacs --batch -l org --eval '(org-babel-tangle-file "~/git/ubuntu-dotfiles/ubunt
 
     imports = [
       ./programs/firefox/firefox.nix
+      ./programs/dconf/dconf.nix
     ];
 
 
@@ -104,6 +105,9 @@ emacs --batch -l org --eval '(org-babel-tangle-file "~/git/ubuntu-dotfiles/ubunt
         enable = true;
         client.enable = true;
       };
+      gnome-keyring = {
+        enable = true;
+      };
       gpg-agent = {
         enable = true;
         extraConfig = ''
@@ -126,6 +130,30 @@ emacs --batch -l org --eval '(org-babel-tangle-file "~/git/ubuntu-dotfiles/ubunt
         '';
       };
     };
+
+    # systemd
+    systemd.user.sessionVariables = {
+      SSH_AUTH_SOCK = "/run/user/1000/keyring/ssh";
+      DISPLAY = ":0";
+      WAYLAND_DISPLAY = "wayland-0";
+    };
+
+    # home sessions variables
+    home.sessionVariables = {
+      XCURSOR_THEME = "Adwaita";
+    };
+
+    # gtk
+    gtk = {
+      enable = true;
+      gtk3.extraConfig = {
+        gtk-application-prefer-dark-theme = true;
+      };
+      gtk4.extraConfig = {
+        gtk-application-prefer-dark-theme = true;
+      };
+    };
+
 
     # xdg directories
     xdg = {
@@ -472,6 +500,98 @@ emacs --batch -l org --eval '(org-babel-tangle-file "~/git/ubuntu-dotfiles/ubunt
 }
 #+end_src
 
+**** dconf.nix
+
+#+NAME: dconf.nix
+#+begin_src nix
+{ lib, ... }:
+
+with lib.hm.gvariant;
+
+{
+  dconf.settings = {
+    "org/gnome/desktop/input-sources" = {
+     color-scheme = "prefer-dark";
+    };
+    "org/gnome/desktop/input-sources" = {
+      per-window = false;
+      show-all-sources = true;
+    };
+    "org/gnome/desktop/interface" = {
+      clock-show-date = false;
+      clock-show-weekday = false;
+      color-scheme = "prefer-dark";
+      enable-animations = false;
+    };
+    "org/gnome/desktop/peripherals/touchpad" = {
+      natural-scroll = false;
+      two-finger-scrolling-enabled = true;
+    };
+    "org/gnome/desktop/wm/keybindings" = {
+      close = ["<Shift><Super>c"];
+      move-to-monitor-left = ["<Shift><Super>h"];
+      move-to-monitor-right = ["<Shift><Super>l"];
+      move-to-workspace-1 = ["<Shift><Super>exclam"];
+      move-to-workspace-2 = ["<Shift><Super>at"];
+      move-to-workspace-3 = ["<Shift><Super>sterling"];
+      move-to-workspace-4 = ["<Shift><Super>dollar"];
+      switch-applications = ["<Super>j"];
+      switch-applications-backward = ["<Super>k"];
+      switch-to-workspace-1 = ["<Super>1"];
+      switch-to-workspace-2 = ["<Super>2"];
+      switch-to-workspace-3 = ["<Super>3"];
+      switch-to-workspace-4 = ["<Super>4"];
+      switch-to-workspace-5 = ["<Super>5"];
+      switch-to-workspace-6 = ["<Super>6"];
+      switch-to-workspace-7 = ["<Super>7"];
+      switch-to-workspace-8 = ["<Super>8"];
+      switch-to-workspace-9 = ["<Super>9"];
+      switch-to-workspace-left = ["<Super>h"];
+      switch-to-workspace-right = ["<Super>l"];
+    };
+    "org/gnome/mutter" = {
+      center-new-windows = true;
+      dynamic-workspaces = true;
+      focus-change-on-pointer-rest = false;
+      overlay-key = "Super_R";
+      workspaces-only-on-primary = true;
+    };
+    "org/gnome/settings-daemon/plugins/media-keys" = {
+      play = ["<Alt><Super>space"];
+      volume-step = 5;
+    };
+    "org/gnome/settings-daemon/power" = {
+      idle-dim = false;
+      sleep-inactive-ac-timeout = 3600;
+      sleep-inactive-ac-type = "nothing";
+    };
+    "org/gnome/shell/keybindings" = {
+      switch-to-application-1 = [""];
+      switch-to-application-2 = [""];
+      switch-to-application-3 = [""];
+      switch-to-application-4 = [""];
+      switch-to-application-5 = [""];
+      switch-to-application-6 = [""];
+      switch-to-application-7 = [""];
+      switch-to-application-8 = [""];
+      switch-to-application-9 = [""];
+      toggle-application-view = ["<Primary><Super>p"];
+    };
+    "org/gnome/shell/ubuntu" = {
+      color-scheme = "prefer-dark";
+    };
+    "org/gnome/system/location" = {
+      enabled = false;
+    };
+    "org/gnome/desktop/wm/preferences" = {
+      audible-bell = false;
+      auto-raise = true;
+      focus-mode = "click";
+    };
+  };
+}
+#+end_src
+
 *** home-manager tangle
 **** home.nix tangle
 :PROPERTIES:
@@ -507,8 +627,27 @@ emacs --batch -l org --eval '(org-babel-tangle-file "~/git/ubuntu-dotfiles/ubunt
 + current dir
 
 #+NAME: firefox.nix-current-dir
-#+BEGIN_SRC nix :noweb yes :tangle ".config/nixpkgs/home-manager/firefox/firefox.nix"
+#+BEGIN_SRC nix :noweb yes :tangle ".config/home-manager/firefox/firefox.nix"
 <<firefox.nix>>
+#+END_SRC
+
+**** dconf.nix tangle
+:PROPERTIES:
+:ORDERED:  t
+:END:
+
++ home dir
+
+#+NAME: dconf.nix-home-dir
+#+BEGIN_SRC nix :noweb yes :tangle "~/.config/home-manager/programs/dconf/dconf.nix"
+<<dconf.nix>>
+#+END_SRC
+  
++ current dir
+
+#+NAME: dconf.nix-current-dir
+#+BEGIN_SRC nix :noweb yes :tangle ".config/home-manager/dconf/dconf.nix"
+<<dconf.nix>>
 #+END_SRC
 
 ** emacs

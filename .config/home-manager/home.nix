@@ -19,6 +19,7 @@
 
     imports = [
       ./programs/firefox/firefox.nix
+      ./programs/dconf/dconf.nix
     ];
 
 
@@ -75,6 +76,9 @@
         enable = true;
         client.enable = true;
       };
+      gnome-keyring = {
+        enable = true;
+      };
       gpg-agent = {
         enable = true;
         extraConfig = ''
@@ -97,6 +101,30 @@
         '';
       };
     };
+
+    # systemd
+    systemd.user.sessionVariables = {
+      SSH_AUTH_SOCK = "/run/user/1000/keyring/ssh";
+      DISPLAY = ":0";
+      WAYLAND_DISPLAY = "wayland-0";
+    };
+
+    # home sessions variables
+    home.sessionVariables = {
+      XCURSOR_THEME = "Adwaita";
+    };
+
+    # gtk
+    gtk = {
+      enable = true;
+      gtk3.extraConfig = {
+        gtk-application-prefer-dark-theme = true;
+      };
+      gtk4.extraConfig = {
+        gtk-application-prefer-dark-theme = true;
+      };
+    };
+
 
     # xdg directories
     xdg = {
