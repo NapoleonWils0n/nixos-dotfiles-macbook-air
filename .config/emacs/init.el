@@ -24,9 +24,8 @@
  ;; If there is more than one, they won't work right.
  '(auth-source-save-behavior nil)
  '(custom-safe-themes
-   '("636b135e4b7c86ac41375da39ade929e2bd6439de8901f53f88fde7dd5ac3561" default))
- '(package-selected-packages
-   '())
+   '("ffafb0e9f63935183713b204c11d22225008559fa62133a69848835f4f4a758c" "636b135e4b7c86ac41375da39ade929e2bd6439de8901f53f88fde7dd5ac3561" default))
+ '(package-selected-packages 'nil)
  '(warning-suppress-types '((comp))))
 
 ;; require package
@@ -188,7 +187,7 @@
 ;; ----------------------------------------------------------------------------------
 
 ;; tree-sitter
-(require 'treesit)
+;;(require 'treesit)
 
 ;; ob-async
 (require 'ob-async)
@@ -209,20 +208,20 @@
 ;; ----------------------------------------------------------------------------------
 
 ;; M-x treesit-install-language-grammar bash
-(add-to-list
- 'treesit-language-source-alist
- '(bash "https://github.com/tree-sitter/tree-sitter-bash.git"))
+;;(add-to-list
+;; 'treesit-language-source-alist
+;; '(bash "https://github.com/tree-sitter/tree-sitter-bash.git"))
 
 ;; sh-mode use bash-ts-mode
-(add-to-list 'major-mode-remap-alist
-             '(sh-mode . bash-ts-mode))
+;;(add-to-list 'major-mode-remap-alist
+;;             '(sh-mode . bash-ts-mode))
 
 
 ;; treesitter explore open in side window
-(add-to-list 'display-buffer-alist
-   '("^*tree-sitter explorer *" display-buffer-in-side-window
-     (side . right)
-     (window-width . 0.40)))
+;;(add-to-list 'display-buffer-alist
+;;   '("^*tree-sitter explorer *" display-buffer-in-side-window
+;;     (side . right)
+;;     (window-width . 0.40)))
 
 
 ;; ----------------------------------------------------------------------------------
@@ -439,9 +438,6 @@
 
 ;; dired directory listing options for ls
 (setq dired-use-ls-dired t)
-;; freebsd gls fix
-(setq insert-directory-program "/usr/local/bin/gls")
-(setq dired-listing-switches "-ahlv")
 
 ;; hide dotfiles
 (setq dired-omit-mode t)
@@ -684,7 +680,7 @@
 (add-hook 'text-mode-hook #'hl-line-mode)
 
 ;; flycheck syntax linting
-(add-hook 'sh-mode-hook 'flycheck-mode)
+;;(add-hook 'sh-mode-hook 'flycheck-mode)
 
 
 ;; ----------------------------------------------------------------------------------

@@ -29,59 +29,69 @@ emacs --batch -l org --eval '(org-babel-tangle-file "~/git/ubuntu-dotfiles/ubunt
 #+BEGIN_SRC nix
 { config, pkgs, ... }:
 
-let
+{
+  # Home Manager needs a bit of information about you and the paths it should
+  # manage.
+  home.username = "djwilcox";
+  home.homeDirectory = "/home/djwilcox";
+  nixpkgs.config.allowUnfree = true;
 
-  unstable = import (fetchTarball
-    "https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz") {
-      overlays = [
-        (import (builtins.fetchTarball {
-          url = https://github.com/nix-community/emacs-overlay/archive/master.tar.gz;
-        }))
-      ];
-    };
+  # This value determines the Home Manager release that your configuration is
+  # compatible with. This helps avoid breakage when a new Home Manager release
+  # introduces backwards incompatible changes.
+  #
+  # You should not change this value, even if you update Home Manager. If you do
+  # want to update the value, then make sure to first check the Home Manager
+  # release notes.
+  home.stateVersion = "23.11"; # Please read the comment before changing.
 
-in {
+
+    imports = [
+      ./programs/firefox/firefox.nix
+    ];
+
 
     programs = {
       emacs = {
         enable = true;
-        package = unstable.emacsPgtk;
+        package = pkgs.emacs29-pgtk;
         extraPackages = epkgs: with epkgs; [
-          all-the-icons
+          async
           consult
           doom-themes
           doom-modeline
           ednc
+          elfeed
+          elfeed-org
+          elfeed-tube
+          elfeed-tube-mpv
+          tree-sitter-langs
           embark
           embark-consult
           emmet-mode
+          evil
           evil-collection
           evil-leader
-          evil-surround
           fd-dired
-          flycheck
-          git-commit
           git-auto-commit-mode
           google-translate
           hydra
           iedit
-          magit
-          magit-section
           marginalia
           mpv
+          nerd-icons
           nix-mode
           ob-async
-          openwith
           orderless
           rg
           s
           shrink-path
+          tsc
           undo-tree
           vertico
           wgrep
           which-key
           yaml-mode
-          youtube-sub-extractor
         ];
       };
       gpg = {
@@ -89,18 +99,10 @@ in {
       };
     };
 
-    imports = [
-      ./programs/firefox/firefox.nix
-      ./programs/dconf/dconf.nix
-    ];
-
     services = {
       emacs = {
         enable = true;
         client.enable = true;
-      };
-      gnome-keyring = {
-        enable = true;
       };
       gpg-agent = {
         enable = true;
@@ -125,29 +127,6 @@ in {
       };
     };
 
-    # systemd
-    systemd.user.sessionVariables = {
-      SSH_AUTH_SOCK = "/run/user/1000/keyring/ssh";
-      DISPLAY = ":0";
-      WAYLAND_DISPLAY = "wayland-0";
-    };
-
-    # home sessions variables
-    home.sessionVariables = {
-      XCURSOR_THEME = "Adwaita";
-    };
-
-    # gtk
-    gtk = {
-      enable = true;
-      gtk3.extraConfig = {
-        gtk-application-prefer-dark-theme = true;
-      };
-      gtk4.extraConfig = {
-        gtk-application-prefer-dark-theme = true;
-      };
-    };
-
     # xdg directories
     xdg = {
       userDirs = {
@@ -167,94 +146,107 @@ in {
     })
   ];
 
-  home.packages = with pkgs;[
+
+  # The home.packages option allows you to install Nix packages into your
+  # environment.
+  home.packages = with pkgs; [
     abook
     alacritty
     apg
     aria
     aspell
     aspellDicts.en
-    bat
     bc
-    bento4
+    cantarell-fonts
+    chromium
     curl
-    csvkit
     dict
-    gnome.dconf-editor
-    gnome.gnome-tweaks
     exiftool
-    exa
-    fd
     file
     fira-code
-    ffmpeg_5-full
+    ffmpeg
     fzf
     git
     gnumake
-    html-xml-utils
     imagemagick
     jq
-    lynx
-    libxslt
-    libnotify
     libwebp
-    mediainfo
     mpc_cli
     mpd
     mpv
     mutt
-    ncdu
     ncmpc
-    newsboat
-    nsxiv
     oathToolkit
     obs-studio
     openvpn
     pandoc
     pinentry-curses
     playerctl
-    p7zip
     ripgrep
     socat
     sox
     shellcheck
-    streamlink
-    surfraw
-    tcpdump
     tmux
-    traceroute
     translate-shell
-    transmission
+    tree-sitter
     ts
     unzip
-    viddy
     urlscan
     urlview
     yt-dlp
-    w3m
     weechat
     wget
+    wl-clipboard
     widevine-cdm
-    xclip
-    zathura
+    vim
     zip
+    # # Adds the 'hello' command to your environment. It prints a friendly
+    # # "Hello, world!" when run.
+    # pkgs.hello
+
+    # # It is sometimes useful to fine-tune packages, for example, by applying
+    # # overrides. You can do that directly here, just don't forget the
+    # # parentheses. Maybe you want to install Nerd Fonts with a limited number of
+    # # fonts?
+    # (pkgs.nerdfonts.override { fonts = [ "FantasqueSansMono" ]; })
+
+    # # You can also create simple shell scripts directly inside your
+    # # configuration. For example, this adds a command 'my-hello' to your
+    # # environment:
+    # (pkgs.writeShellScriptBin "my-hello" ''
+    #   echo "Hello, ${config.home.username}!"
+    # '')
   ];
 
-  # Home Manager needs a bit of information about you and the
-  # paths it should manage.
-  manual.manpages.enable = false; # needed for dell xps15
-  home.username = "djwilcox";
-  home.homeDirectory = "/home/djwilcox";
+  # Home Manager is pretty good at managing dotfiles. The primary way to manage
+  # plain files is through 'home.file'.
+  home.file = {
+    # # Building this configuration will create a copy of 'dotfiles/screenrc' in
+    # # the Nix store. Activating the configuration will then make '~/.screenrc' a
+    # # symlink to the Nix store copy.
+    # ".screenrc".source = dotfiles/screenrc;
 
-  # This value determines the Home Manager release that your
-  # configuration is compatible with. This helps avoid breakage
-  # when a new Home Manager release introduces backwards
-  # incompatible changes.
+    # # You can also set the file content immediately.
+    # ".gradle/gradle.properties".text = ''
+    #   org.gradle.console=verbose
+    #   org.gradle.daemon.idletimeout=3600000
+    # '';
+  };
+
+  # Home Manager can also manage your environment variables through
+  # 'home.sessionVariables'. If you don't want to manage your shell through Home
+  # Manager then you have to manually source 'hm-session-vars.sh' located at
+  # either
   #
-  # You can update Home Manager without changing this value. See
-  # the Home Manager release notes for a list of state version
-  # changes in each release.
-  home.stateVersion = "22.11";
+  #  ~/.nix-profile/etc/profile.d/hm-session-vars.sh
+  #
+  # or
+  #
+  #  /etc/profiles/per-user/djwilcox/etc/profile.d/hm-session-vars.sh
+  #
+  home.sessionVariables = {
+    # EDITOR = "emacs";
+  };
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
@@ -282,12 +274,6 @@ in {
       PasswordManagerEnabled = false;
       };
     };
-    extensions = with pkgs.nur.repos.rycee.firefox-addons; [
-      multi-account-containers
-      ublock-origin
-      vimium
-      violentmonkey
-    ];
       profiles = {
         default = {
           isDefault = true;
@@ -384,7 +370,7 @@ in {
           user_pref("geo.enabled", false);
           // general
           user_pref("gfx.webrender.all", true);
-          user_pref("layout.css.devPixelsPerPx", "1");
+          user_pref("layout.css.devPixelsPerPx", "2");
           // media autoplay = 5
           user_pref("media.autoplay.default", "5");
           user_pref("media.navigator.enabled", false);
@@ -484,99 +470,6 @@ in {
         };
       };
 }
-
-#+end_src
-
-**** dconf.nix
-
-#+NAME: dconf.nix
-#+begin_src nix
-{ lib, ... }:
-
-with lib.hm.gvariant;
-
-{
-  dconf.settings = {
-    "org/gnome/desktop/input-sources" = {
-     color-scheme = "prefer-dark";
-    };
-    "org/gnome/desktop/input-sources" = {
-      per-window = false;
-      show-all-sources = true;
-    };
-    "org/gnome/desktop/interface" = {
-      clock-show-date = false;
-      clock-show-weekday = false;
-      color-scheme = "prefer-dark";
-      enable-animations = false;
-    };
-    "org/gnome/desktop/peripherals/touchpad" = {
-      natural-scroll = false;
-      two-finger-scrolling-enabled = true;
-    };
-    "org/gnome/desktop/wm/keybindings" = {
-      close = ["<Shift><Super>c"];
-      move-to-monitor-left = ["<Shift><Super>h"];
-      move-to-monitor-right = ["<Shift><Super>l"];
-      move-to-workspace-1 = ["<Shift><Super>exclam"];
-      move-to-workspace-2 = ["<Shift><Super>at"];
-      move-to-workspace-3 = ["<Shift><Super>sterling"];
-      move-to-workspace-4 = ["<Shift><Super>dollar"];
-      switch-applications = ["<Super>j"];
-      switch-applications-backward = ["<Super>k"];
-      switch-to-workspace-1 = ["<Super>1"];
-      switch-to-workspace-2 = ["<Super>2"];
-      switch-to-workspace-3 = ["<Super>3"];
-      switch-to-workspace-4 = ["<Super>4"];
-      switch-to-workspace-5 = ["<Super>5"];
-      switch-to-workspace-6 = ["<Super>6"];
-      switch-to-workspace-7 = ["<Super>7"];
-      switch-to-workspace-8 = ["<Super>8"];
-      switch-to-workspace-9 = ["<Super>9"];
-      switch-to-workspace-left = ["<Super>h"];
-      switch-to-workspace-right = ["<Super>l"];
-    };
-    "org/gnome/mutter" = {
-      center-new-windows = true;
-      dynamic-workspaces = true;
-      focus-change-on-pointer-rest = false;
-      overlay-key = "Super_R";
-      workspaces-only-on-primary = true;
-    };
-    "org/gnome/settings-daemon/plugins/media-keys" = {
-      play = ["<Alt><Super>space"];
-      volume-step = 5;
-    };
-    "org/gnome/settings-daemon/power" = {
-      idle-dim = false;
-      sleep-inactive-ac-timeout = 3600;
-      sleep-inactive-ac-type = "nothing";
-    };
-    "org/gnome/shell/keybindings" = {
-      switch-to-application-1 = [""];
-      switch-to-application-2 = [""];
-      switch-to-application-3 = [""];
-      switch-to-application-4 = [""];
-      switch-to-application-5 = [""];
-      switch-to-application-6 = [""];
-      switch-to-application-7 = [""];
-      switch-to-application-8 = [""];
-      switch-to-application-9 = [""];
-      toggle-application-view = ["<Primary><Super>p"];
-    };
-    "org/gnome/shell/ubuntu" = {
-      color-scheme = "prefer-dark";
-    };
-    "org/gnome/system/location" = {
-      enabled = false;
-    };
-    "org/gnome/desktop/wm/preferences" = {
-      audible-bell = false;
-      auto-raise = true;
-      focus-mode = "click";
-    };
-  };
-}
 #+end_src
 
 *** home-manager tangle
@@ -588,14 +481,14 @@ with lib.hm.gvariant;
 + home dir
 
 #+NAME: home.nix-home-dir
-#+BEGIN_SRC nix :noweb yes :tangle "~/.config/nixpkgs/home.nix"
+#+BEGIN_SRC nix :noweb yes :tangle "~/.config/home-manager/home.nix"
 <<home.nix>>
 #+END_SRC
   
 + current dir
 
 #+NAME: home.nix-current-dir
-#+BEGIN_SRC nix :noweb yes :tangle ".config/nixpkgs/home.nix"
+#+BEGIN_SRC nix :noweb yes :tangle ".config/home-manager/home.nix"
 <<home.nix>>
 #+END_SRC
 
@@ -607,34 +500,15 @@ with lib.hm.gvariant;
 + home dir
 
 #+NAME: firefox.nix-home-dir
-#+BEGIN_SRC nix :noweb yes :tangle "~/.config/nixpkgs/programs/firefox/firefox.nix"
+#+BEGIN_SRC nix :noweb yes :tangle "~/.config/home-manager/programs/firefox/firefox.nix"
 <<firefox.nix>>
 #+END_SRC
   
 + current dir
 
 #+NAME: firefox.nix-current-dir
-#+BEGIN_SRC nix :noweb yes :tangle ".config/nixpkgs/programs/firefox/firefox.nix"
+#+BEGIN_SRC nix :noweb yes :tangle ".config/nixpkgs/home-manager/firefox/firefox.nix"
 <<firefox.nix>>
-#+END_SRC
-
-**** dconf.nix tangle
-:PROPERTIES:
-:ORDERED:  t
-:END:
-
-+ home dir
-
-#+NAME: dconf.nix-home-dir
-#+BEGIN_SRC nix :noweb yes :tangle "~/.config/nixpkgs/programs/dconf/dconf.nix"
-<<dconf.nix>>
-#+END_SRC
-  
-+ current dir
-
-#+NAME: dconf.nix-current-dir
-#+BEGIN_SRC nix :noweb yes :tangle ".config/nixpkgs/programs/dconf/dconf.nix"
-<<dconf.nix>>
 #+END_SRC
 
 ** emacs
@@ -669,9 +543,8 @@ with lib.hm.gvariant;
  ;; If there is more than one, they won't work right.
  '(auth-source-save-behavior nil)
  '(custom-safe-themes
-   '("636b135e4b7c86ac41375da39ade929e2bd6439de8901f53f88fde7dd5ac3561" default))
- '(package-selected-packages
-   '())
+   '("ffafb0e9f63935183713b204c11d22225008559fa62133a69848835f4f4a758c" "636b135e4b7c86ac41375da39ade929e2bd6439de8901f53f88fde7dd5ac3561" default))
+ '(package-selected-packages 'nil)
  '(warning-suppress-types '((comp))))
 
 ;; require package
@@ -833,7 +706,7 @@ with lib.hm.gvariant;
 ;; ----------------------------------------------------------------------------------
 
 ;; tree-sitter
-(require 'treesit)
+;;(require 'treesit)
 
 ;; ob-async
 (require 'ob-async)
@@ -854,20 +727,20 @@ with lib.hm.gvariant;
 ;; ----------------------------------------------------------------------------------
 
 ;; M-x treesit-install-language-grammar bash
-(add-to-list
- 'treesit-language-source-alist
- '(bash "https://github.com/tree-sitter/tree-sitter-bash.git"))
+;;(add-to-list
+;; 'treesit-language-source-alist
+;; '(bash "https://github.com/tree-sitter/tree-sitter-bash.git"))
 
 ;; sh-mode use bash-ts-mode
-(add-to-list 'major-mode-remap-alist
-             '(sh-mode . bash-ts-mode))
+;;(add-to-list 'major-mode-remap-alist
+;;             '(sh-mode . bash-ts-mode))
 
 
 ;; treesitter explore open in side window
-(add-to-list 'display-buffer-alist
-   '("^*tree-sitter explorer *" display-buffer-in-side-window
-     (side . right)
-     (window-width . 0.40)))
+;;(add-to-list 'display-buffer-alist
+;;   '("^*tree-sitter explorer *" display-buffer-in-side-window
+;;     (side . right)
+;;     (window-width . 0.40)))
 
 
 ;; ----------------------------------------------------------------------------------
@@ -1084,9 +957,6 @@ with lib.hm.gvariant;
 
 ;; dired directory listing options for ls
 (setq dired-use-ls-dired t)
-;; freebsd gls fix
-(setq insert-directory-program "/usr/local/bin/gls")
-(setq dired-listing-switches "-ahlv")
 
 ;; hide dotfiles
 (setq dired-omit-mode t)
@@ -1329,7 +1199,7 @@ with lib.hm.gvariant;
 (add-hook 'text-mode-hook #'hl-line-mode)
 
 ;; flycheck syntax linting
-(add-hook 'sh-mode-hook 'flycheck-mode)
+;;(add-hook 'sh-mode-hook 'flycheck-mode)
 
 
 ;; ----------------------------------------------------------------------------------
@@ -2639,7 +2509,7 @@ alias mpc='mpc --host="/run/user/1000/mpd/socket"'
 
 # Path
 typeset -U PATH path
-path=("$HOME/bin" "$path[@]")
+path=("$HOME/bin" "$HOME/.nix-profile/bin" "$path[@]")
 export PATH
 
 # xdg directories
@@ -2665,6 +2535,7 @@ export VISUAL="emacsclient -r -c -a emacs"
 
 # qt5
 export QT_QPA_PLATFORMTHEME=qt5ct
+export PLASMA_USE_QT_SCALING=2
 
 # vi mode
 export KEYTIMEOUT=1

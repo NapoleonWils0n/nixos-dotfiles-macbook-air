@@ -2,7 +2,7 @@
 
 # Path
 typeset -U PATH path
-path=("$HOME/bin" "$path[@]")
+path=("$HOME/bin" "$HOME/.nix-profile/bin" "$path[@]")
 export PATH
 
 # xdg directories
@@ -28,6 +28,7 @@ export VISUAL="emacsclient -r -c -a emacs"
 
 # qt5
 export QT_QPA_PLATFORMTHEME=qt5ct
+export PLASMA_USE_QT_SCALING=2
 
 # vi mode
 export KEYTIMEOUT=1
