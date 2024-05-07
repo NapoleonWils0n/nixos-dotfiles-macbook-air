@@ -3170,8 +3170,8 @@ Comment=nognome_notifications
 #+BEGIN_SRC conf :noweb yes :tangle ".config/autostart/nognome_notications.desktop"
 <<nognome_notications>>
 #+END_SRC
-** gitconfig
-*** gitconfig config
+** git
+*** git config
 
 #+NAME: gitconfig
 #+BEGIN_SRC conf
@@ -3182,11 +3182,11 @@ email = danieljwilcox@gmail.com
 ui = true
 #+END_SRC
 
-*** gitconfig tangle
+*** git tangle
 
 + home dir
 
-#+NAME: gitconfig-home-dir
+#+NAME: git-home-dir
 #+BEGIN_SRC conf :noweb yes :tangle "~/.config/git/config"
 <<gitconfig>>
 #+END_SRC
@@ -3194,7 +3194,7 @@ ui = true
 + current dir
 
 #+NAME: gitconfig-current-dir
-#+BEGIN_SRC conf :noweb yes :tangle ".config/git/gitconfig"
+#+BEGIN_SRC conf :noweb yes :tangle ".config/git/config"
 <<gitconfig>>
 #+END_SRC
 
