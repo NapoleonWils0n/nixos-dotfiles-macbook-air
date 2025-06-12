@@ -23,9 +23,15 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(auth-source-save-behavior nil)
- '(custom-safe-themes
-   '("ffafb0e9f63935183713b204c11d22225008559fa62133a69848835f4f4a758c" "636b135e4b7c86ac41375da39ade929e2bd6439de8901f53f88fde7dd5ac3561" default))
- '(package-selected-packages 'nil)
+ '(custom-safe-themes '("" default))
+ '(package-selected-packages
+   '(async consult csv-mode doom-modeline doom-modeline-now-playing
+           doom-themes ednc elfeed elfeed-org elfeed-tube
+           elfeed-tube-mpv embark embark-consult emmet-mode evil
+           evil-collection evil-leader fd-dired git-auto-commit-mode
+           google-translate gptel hydra iedit magit marginalia mpv
+           nerd-icons nix-mode ob-async orderless org-tree-slide rg s
+           shrink-path undo-tree vertico wgrep which-key yaml-mode))
  '(warning-suppress-types '((comp))))
 
 ;; require package
@@ -41,23 +47,42 @@
   (package-refresh-contents))
 (package-install-selected-packages)
 
-;; emacs aysnc - asynchronous compilation of your (M)elpa packages
-(async-bytecomp-package-mode 1)
-(setq async-bytecomp-allowed-packages '(all))
+
+;; ----------------------------------------------------------------------------------
+;; theme
+;; ----------------------------------------------------------------------------------
+
+(load-theme 'modus-vivendi-tinted t)
 
 
 ;; ----------------------------------------------------------------------------------
 ;; general settings
 ;; ----------------------------------------------------------------------------------
 
-;; Save all tempfiles in $TMPDIR/emacs$UID/                                                        
-(defconst emacs-tmp-dir (expand-file-name (format "emacs%d" (user-uid)) temporary-file-directory))
-(setq backup-directory-alist
-    `((".*" . ,emacs-tmp-dir)))
-(setq auto-save-file-name-transforms
-    `((".*" ,emacs-tmp-dir t)))
-(setq auto-save-list-file-prefix
-    emacs-tmp-dir)
+;; Save all tempfiles in ~/.config/emacs/backups
+(setq backup-directory-alist '(("." . "~/.config/emacs/backups")))
+(with-eval-after-load 'tramp
+  (add-to-list 'tramp-backup-directory-alist
+               (cons tramp-file-name-regexp nil)))
+
+
+;; auto save list
+(setq delete-old-versions -1)
+(setq version-control t)
+(setq vc-make-backup-files t)
+(setq auto-save-file-name-transforms '((".*" "~/.config/emacs/auto-save-list/" t)))
+
+
+;; history
+(setq savehist-file "~/.config/emacs/savehist")
+(savehist-mode 1)
+(setq history-length t)
+(setq history-delete-duplicates t)
+(setq savehist-save-minibuffer-history 1)
+(setq savehist-additional-variables
+      '(kill-ring
+        search-ring
+        regexp-search-ring))
 
 
 ;; dont backup files opened by sudo or doas
@@ -73,7 +98,6 @@
 ;; save
 (save-place-mode 1)         ;; save cursor position
 (desktop-save-mode 0)       ;; dont save the desktop session
-(savehist-mode 1)           ;; save history
 (global-auto-revert-mode 1) ;; revert buffers when the underlying file has changed
 
 ;; scrolling
@@ -99,7 +123,7 @@
 (set-face-attribute 'fixed-pitch nil :font "Fira Code" :height efs/default-font-size)
 
 ;; Set the variable pitch face
-(set-face-attribute 'variable-pitch nil :font "Cantarell" :height efs/default-variable-font-size :weight 'regular)
+(set-face-attribute 'variable-pitch nil :font "Iosevka" :height efs/default-variable-font-size :weight 'regular)
 
 ;; tab bar background
 (set-face-attribute 'tab-bar nil
@@ -135,6 +159,61 @@
 
 
 ;; ----------------------------------------------------------------------------------
+;; doom modeline now playing
+;; ----------------------------------------------------------------------------------
+
+;; now playing
+(require 'doom-modeline-now-playing)
+
+;; max length
+(setq doom-modeline-now-playing-max-length 35)
+
+;; update interval 1 second
+(setq doom-modeline-now-playing-interval 1)
+
+;; ignored players
+(setq doom-modeline-now-playing-ignored-players '("firefox"))
+
+;; playerctl format
+(setq doom-modeline-now-playing-format "[{{duration(position)}}/{{duration(mpris:length)}}] {{title}}")
+
+(doom-modeline-def-modeline 'main
+'(bar matches buffer-info remote-host buffer-position parrot selection-info now-playing)
+'(misc-info minor-modes input-method buffer-encoding major-mode process vcs check time))
+
+;; modeline
+(with-eval-after-load 'doom-modeline-now-playing
+(doom-modeline-def-segment now-playing
+  "Current status of playerctl. Configurable via
+variables for update interval, output format, etc."
+  (when (and doom-modeline-now-playing
+             (doom-modeline--active)
+             doom-modeline-now-playing-status
+             (not (string= (now-playing-status-player doom-modeline-now-playing-status) "No players found")))
+    (let ((player (now-playing-status-player doom-modeline-now-playing-status))
+          (status (now-playing-status-status doom-modeline-now-playing-status))
+          (text   (now-playing-status-text   doom-modeline-now-playing-status)))
+      (concat
+       (propertize (if (equal status "playing")
+                       (doom-modeline-icon 'faicon "nf-fa-circle_play" "" ">"
+                                           :v-adjust -0)
+                     (doom-modeline-icon 'faicon "nf-fa-circle_pause" "" "||"
+                                         :v-adjust -0))
+                   'mouse-face 'mode-line-highlight
+                   'help-echo "mouse-1: Toggle player status"
+                   'local-map (let ((map (make-sparse-keymap)))
+                                (define-key map [mode-line mouse-1] 'doom-modeline-now-playing-toggle-status)
+                                map))
+       (doom-modeline-spc)
+       (propertize
+        (truncate-string-to-width text doom-modeline-now-playing-max-length nil nil "...")
+        'face 'doom-modeline-now-playing-text))))))
+
+;; doom-modeline-now-playing-timer - keep at bottom
+(doom-modeline-now-playing-timer)
+
+
+;; ----------------------------------------------------------------------------------
 ;; TAB bar mode 
 ;; ----------------------------------------------------------------------------------
 
@@ -147,6 +226,8 @@
 (setq tab-bar-new-tab-to 'right)
 (setq tab-bar-tab-hints nil)
 (setq tab-bar-separator " ")
+(setq tab-bar-auto-width-max '((100) 20))
+(setq tab-bar-auto-width t)
 
 ;; Customize the tab bar format to add the global mode line string
 (setq tab-bar-format '(tab-bar-format-tabs tab-bar-separator tab-bar-format-align-right tab-bar-format-global))
@@ -225,6 +306,15 @@
 
 
 ;; ----------------------------------------------------------------------------------
+;; buffer list
+;; ----------------------------------------------------------------------------------
+
+;; display Buffer List in same window
+(add-to-list 'display-buffer-alist
+   '("^*Buffer List*" display-buffer-same-window))
+
+
+;; ----------------------------------------------------------------------------------
 ;; setq
 ;; ----------------------------------------------------------------------------------
 
@@ -278,10 +368,6 @@
 ;; eww browser text width
 (setq shr-width 80)
 
-;; company auto complete
-(setq company-idle-delay 0)
-(setq company-minimum-prefix-length 3)
-
 ;; ediff
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
 (setq ediff-split-window-function 'split-window-horizontally)
@@ -293,6 +379,7 @@
 (setq switch-to-buffer-obey-display-actions t)
 
 ;; hippie expand
+(setq save-abbrevs 'silently)
 (setq hippie-expand-try-functions-list
       '(try-expand-all-abbrevs
         try-complete-file-name-partially
@@ -304,6 +391,7 @@
         try-expand-line
         try-complete-lisp-symbol-partially
         try-complete-lisp-symbol))
+
 
 ;; ----------------------------------------------------------------------------------
 ;; emacs 28 - dictionary server
@@ -336,10 +424,9 @@
 
 
 ;; ----------------------------------------------------------------------------------
-;; completion
+;; Vertico
 ;; ----------------------------------------------------------------------------------
 
-;; Vertico
 (require 'vertico)
 (require 'vertico-directory)
 
@@ -354,13 +441,20 @@
 ;; Start Vertico
 (vertico-mode 1)
 
-;;; Marginalia
+
+;; ----------------------------------------------------------------------------------
+;; Marginalia
+;; ----------------------------------------------------------------------------------
+
 (require 'marginalia)
 (customize-set-variable 'marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
 (marginalia-mode 1)
 
 
-;; consult
+;; ----------------------------------------------------------------------------------
+;; Consult
+;; ----------------------------------------------------------------------------------
+
 (global-set-key (kbd "C-s") 'consult-line)
 (define-key minibuffer-local-map (kbd "C-r") 'consult-history)
 
@@ -375,7 +469,10 @@
 ;; It lets you use a new minibuffer when you're in the minibuffer
 (setq enable-recursive-minibuffers t)
 
-;;; Orderless
+
+;; ----------------------------------------------------------------------------------
+;; Orderless
+;; ----------------------------------------------------------------------------------
 
 ;; Set up Orderless for better fuzzy matching
 (require 'orderless)
@@ -383,7 +480,10 @@
 (customize-set-variable 'completion-category-overrides '((file (styles . (partial-completion)))))
 
 
-;;; Embark
+;; ----------------------------------------------------------------------------------
+;; Embark
+;; ----------------------------------------------------------------------------------
+
 (require 'embark)
 (require 'embark-consult)
 
@@ -397,12 +497,49 @@
   (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))
 
 
+;; embark and which-key
+(defun embark-which-key-indicator ()
+  "An embark indicator that displays keymaps using which-key.
+The which-key help message will show the type and value of the
+current target followed by an ellipsis if there are further
+targets."
+  (lambda (&optional keymap targets prefix)
+    (if (null keymap)
+        (which-key--hide-popup-ignore-command)
+      (which-key--show-keymap
+       (if (eq (plist-get (car targets) :type) 'embark-become)
+           "Become"
+         (format "Act on %s '%s'%s"
+                 (plist-get (car targets) :type)
+                 (embark--truncate-target (plist-get (car targets) :target))
+                 (if (cdr targets) "…" "")))
+       (if prefix
+           (pcase (lookup-key keymap prefix 'accept-default)
+             ((and (pred keymapp) km) km)
+             (_ (key-binding prefix 'accept-default)))
+         keymap)
+       nil nil t (lambda (binding)
+                   (not (string-suffix-p "-argument" (cdr binding))))))))
+
+(setq embark-indicators
+  '(embark-which-key-indicator
+    embark-highlight-indicator
+    embark-isearch-highlight-indicator))
+
+(defun embark-hide-which-key-indicator (fn &rest args)
+  "Hide the which-key indicator immediately when using the completing-read prompter."
+  (which-key--hide-popup-ignore-command)
+  (let ((embark-indicators
+         (remq #'embark-which-key-indicator embark-indicators)))
+      (apply fn args)))
+
+(advice-add #'embark-completing-read-prompter
+            :around #'embark-hide-which-key-indicator)
+
+
 ;; ----------------------------------------------------------------------------------
 ;; keymap-global-set
 ;; ----------------------------------------------------------------------------------
-
-;; magit
-;;(keymap-global-set "C-x g" 'magit-status)
 
 ;; org-capture
 (keymap-global-set "C-c c" 'org-capture)
@@ -413,11 +550,18 @@
 ;; window-toggle-side-windows
 (keymap-global-set "C-x x w" 'window-toggle-side-windows)
 
+;; open dired side window
+(keymap-global-set "C-x x s" 'my/window-dired-vc-root-left)
+
+;; complete-symbol
+(keymap-global-set "C-." 'complete-symbol)
+
+
 ;; ----------------------------------------------------------------------------------
 ;; keymap-set
 ;; ----------------------------------------------------------------------------------
 
-(keymap-set global-map "C-c o" 'iedit-mode)
+(keymap-set global-map "C-c h" 'iedit-mode)
 (keymap-set global-map "C-c l" 'org-store-link)
 (keymap-set global-map "C-c a" 'org-agenda)
 
@@ -438,6 +582,7 @@
 
 ;; dired directory listing options for ls
 (setq dired-use-ls-dired t)
+(setq dired-listing-switches "-ahlv")
 
 ;; hide dotfiles
 (setq dired-omit-mode t)
@@ -455,7 +600,6 @@
 ;; hide dotfiles
 (setq dired-omit-files
       (concat dired-omit-files "\\|^\\..+$"))
-
 
 ;; dired hide long listing by default
 (defun my-dired-mode-setup ()
@@ -477,6 +621,27 @@
 ;; & open pdf's with zatuhra
 (setq dired-guess-shell-alist-user
       '(("\\.pdf$" "zathura")))
+
+
+;; ------------------------------------------------------------------------------------------------
+;; side-windows
+;; ------------------------------------------------------------------------------------------------
+
+;; dired-find-file-other-window 
+;; bound to <S-return>, g O, <normal-state> <S-return>, <normal-state> g O
+
+;; dired side window
+(defun my/window-dired-vc-root-left ()
+  (interactive)
+  (let ((dir (if (eq (vc-root-dir) nil)
+                 (dired-noselect default-directory)
+               (dired-noselect (vc-root-dir)))))
+    (display-buffer-in-side-window
+     dir `((side . left)
+           (slot . 0)
+           (window-width . 0.20)
+           (window-parameters . ((no-delete-other-windows . t)
+                                 (mode-line-format . (""))))))))
 
 ;; ----------------------------------------------------------------------------------
 ;; dired-fd
@@ -537,6 +702,18 @@
 (require 'org-capture)
 (setq org-agenda-files '("~/git/personal/org/"))
 
+;; resize org headings
+(require 'org-faces)
+(dolist (face '((org-level-1 . 1.2)
+                (org-level-2 . 1.1)
+                (org-level-3 . 1.05)
+                (org-level-4 . 1.0)
+                (org-level-5 . 1.1)
+                (org-level-6 . 1.1)
+                (org-level-7 . 1.1)
+                (org-level-8 . 1.1)))
+  (set-face-attribute (car face) nil :font "Iosevka" :weight 'medium :height (cdr face)))
+
 ;; org babel supress do you want to execute code message
 (setq org-confirm-babel-evaluate nil
       org-src-fontify-natively t
@@ -562,7 +739,6 @@
 
 ;; asynchronous tangle
 (setq org-export-async-debug t)
-
 
 (setq org-capture-templates
     '(("w" "web site" entry
@@ -608,7 +784,10 @@
      ("\\.mov\\'" . "mpv %s")
      ("\\.pdf\\'" . default))))
 
-  
+;; open browser links with jailfox
+(setq browse-url-browser-function 'browse-url-generic
+          browse-url-generic-program "firefox")
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -656,6 +835,73 @@
 
 
 ;; ----------------------------------------------------------------------------------
+;; org tree slide
+;; ----------------------------------------------------------------------------------
+
+;; presentation start
+(defun my/presentation-setup ()
+(setq-local mode-line-format nil) 
+(setq-local face-remapping-alist '((default (:height 1.5) variable-pitch)
+                                   (header-line (:height 4.0) variable-pitch)
+                                   (org-document-title (:height 1.75) org-document-title)
+                                   (org-code (:height 1.55) org-code)
+                                   (org-verbatim (:height 1.55) org-verbatim)
+                                   (org-block (:height 1.25) org-block)
+                                   (org-block-begin-line (:height 0.7) org-block))))
+
+;; presentation end
+(defun my/presentation-end ()
+(doom-modeline-set-modeline 'main)
+  (setq-local face-remapping-alist '((default fixed-pitch default)))
+  (setq-local face-remapping-alist '((default variable-pitch default))))
+
+;; Make sure certain org faces use the fixed-pitch face when variable-pitch-mode is on
+(set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+(set-face-attribute 'org-table nil :inherit 'fixed-pitch)
+(set-face-attribute 'org-formula nil :inherit 'fixed-pitch)
+(set-face-attribute 'org-code nil :inherit '(shadow fixed-pitch))
+(set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+(set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+(set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+(set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
+
+;; presentation hooks
+(add-hook 'org-tree-slide-play-hook 'my/presentation-setup)
+(add-hook 'org-tree-slide-stop-hook 'my/presentation-end)
+
+;; org tree slide settings
+(setq org-tree-slide-header nil)
+(setq org-tree-slide-activate-message "Presentation started")
+(setq org-tree-slide-deactivate-message "Presentation finished")
+(setq org-tree-slide-slide-in-effect t)
+(setq org-tree-slide-breakcrumbs " // ")
+(setq org-tree-slide-heading-emphasis nil)
+(setq org-tree-slide-slide-in-blank-lines 2)
+(setq org-tree-slide-indicator nil)
+
+;; make #+ lines invisible during presentation
+(with-eval-after-load "org-tree-slide"
+  (defvar my-hide-org-meta-line-p nil)
+  (defun my-hide-org-meta-line ()
+    (interactive)
+    (setq my-hide-org-meta-line-p t)
+    (set-face-attribute 'org-meta-line nil
+			:foreground (face-attribute 'default :background)))
+
+  (defun my-show-org-meta-line ()
+    (interactive)
+    (setq my-hide-org-meta-line-p nil)
+    (set-face-attribute 'org-meta-line nil :foreground nil))
+
+  (defun my-toggle-org-meta-line ()
+    (interactive)
+    (if my-hide-org-meta-line-p
+	      (my-show-org-meta-line) (my-hide-org-meta-line)))
+
+  (add-hook 'org-tree-slide-play-hook #'my-hide-org-meta-line)
+  (add-hook 'org-tree-slide-stop-hook #'my-show-org-meta-line))
+
+;; ----------------------------------------------------------------------------------
 ;; mutt
 ;; ----------------------------------------------------------------------------------
 
@@ -669,9 +915,6 @@
 ;; Make shebang (#!) file executable when saved
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
-;; global company mode
-;;(add-hook 'after-init-hook 'global-company-mode)
-
 ;; visual line mode
 (add-hook 'text-mode-hook 'visual-line-mode)
 
@@ -680,7 +923,7 @@
 (add-hook 'text-mode-hook #'hl-line-mode)
 
 ;; flycheck syntax linting
-;;(add-hook 'sh-mode-hook 'flycheck-mode)
+(add-hook 'sh-mode-hook 'flycheck-mode)
 
 
 ;; ----------------------------------------------------------------------------------
@@ -700,7 +943,7 @@
 (defun wl-paste ()
   (if (and wl-copy-process (process-live-p wl-copy-process))
       nil ; should return nil if we're the current paste owner
-      (shell-command-to-string "wl-paste -n | tr -d \r")))
+      (shell-command-to-string "wl-paste -n")))
 (setq interprogram-cut-function 'wl-copy)
 (setq interprogram-paste-function 'wl-paste)
 
@@ -711,22 +954,6 @@
 
 ;; mpv-default-options play fullscreen on second display
 (setq mpv-default-options '("--fs" "--fs-screen-name=DP-3"))
-
-;; get the youtube title from url on the clipboard
-(defun yt-get-title ()
-  "get the youtube title from a url on the clipboard"
-  (interactive)
-  (let ((yt-url (current-kill 0 t)))
-    (async-shell-command (concat
-                   "yt-dlp --skip-download --print \"%(title)s\" " (shell-quote-argument yt-url)))))
-
-
-;; yank the async buffer
-(defun yank-async ()
-  "yank async buffer"
-  (interactive)
-    (yank (kill-new (with-current-buffer "*Async Shell Command*"
-    (buffer-substring-no-properties (point-min) (point-max))))))
 
 
 ;; create a video: link type that opens a url using mpv-play-remote-video
@@ -986,19 +1213,25 @@
 
 
 ;; ----------------------------------------------------------------------------------
-;; eww pinch
+;; pinch - play urls with mpd
 ;; ----------------------------------------------------------------------------------
 
+;; eww-pinch
 (defun eww-pinch ()
   "Send the url under the point to mpd with pinch"
   (interactive)
   (let ((url (shr-url-at-point current-prefix-arg)))
-    (async-shell-command (concat
-                    "pinch -i " (shell-quote-argument url)))))
-
+  (start-process "pinch" nil "pinch" "-i" url)))
 
 (evil-collection-define-key 'normal 'eww-mode-map
     "n" 'eww-pinch)
+
+;; pinch-clipboard - play url from clipboard
+(defun pinch-clipboard ()
+  "Send a url from the clipboard to mpd with pinch"
+  (interactive)
+  (let ((url (current-kill 0 t)))
+  (start-process "pinch" nil "pinch" "-i" url)))
 
 
 ;; ----------------------------------------------------------------------------------
@@ -1009,9 +1242,7 @@
   "Send the url under the point to taskspooler and yt-dlp"
   (interactive)
   (let ((url (shr-url-at-point current-prefix-arg)))
-    (async-shell-command (concat
-                    "ts yt-dlp -P ${HOME}/Downloads " (shell-quote-argument url)))))
-
+    (start-process "eww-yt-dlp" nil "ts" "yt-dlp" "-o" "'%(title)s.%(ext)s'" "-P" (expand-file-name "~/downloads") url)))
 
 (evil-collection-define-key 'normal 'eww-mode-map
     "x" 'eww-yt-dlp)
@@ -1025,19 +1256,17 @@
   "Send the url under the point to taskspooler and aria2c"
   (interactive)
   (let ((url (shr-url-at-point current-prefix-arg)))
-    (async-shell-command (concat
-                    "ts aria2c -d ${HOME}/Downloads " (shell-quote-argument url)))))
-
+    (start-process "eww-aria2c" nil "ts" "aria2c" "-d" (expand-file-name "~/downloads") url)))
 
 (evil-collection-define-key 'normal 'eww-mode-map
     "b" 'eww-aria2c)
 
 
 ;; ----------------------------------------------------------------------------------
-;; hydra
+;; hydra-mpv
 ;; ----------------------------------------------------------------------------------
 
-(defhydra hydra-mpv (global-map "<f2>")
+(defhydra hydra-mpv (:hint nil)
   "
   ^Seek^                    ^Actions^                ^General^                       ^Playlists^
   ^^^^^^^^-----------------------------------------------------------------------------------------------------------
@@ -1063,6 +1292,114 @@
   ("p" mpv-playlist-prev)
   ("e" mpv-jump-to-playlist-entry)
   ("r" mpv-remove-playlist-entry))
+
+
+;; ----------------------------------------------------------------------------------
+;; kocontrol - kodi
+;; ----------------------------------------------------------------------------------
+
+;; toggle play/pause
+(defun kodi-play ()
+  "Kodi toggle play/pause"
+  (interactive)
+  (start-process "kodi-play" nil "kocontrol" "-p play"))
+
+;; stop playback
+(defun kodi-stop ()
+  "Kodi stop playback"
+  (interactive)
+  (start-process "kodi-stop" nil "kocontrol" "-x stop"))
+
+;; seek forward 5 seconds
+(defun kodi-seek-forward-5 ()
+  "Kodi seek forward 5 seconds"
+  (interactive)
+  (start-process "kodi-seek-forward-5" nil "kocontrol" "-s 5"))
+
+;; seek forward 60 seconds
+(defun kodi-seek-forward-60 ()
+  "Kodi seek forward 60 seconds"
+  (interactive)
+  (start-process "kodi-seek-forward-60" nil "kocontrol" "-s 60"))
+
+;; seek backward 5 seconds
+(defun kodi-seek-backward-5 ()
+  "Kodi seek backward 5 seconds"
+  (interactive)
+  (start-process "kodi-seek-backward-5" nil "kocontrol" "-s -5"))
+
+;; seek backward 60 seconds
+(defun kodi-seek-backward-60 ()
+  "Kodi seek backward 60 seconds"
+  (interactive)
+  (start-process "kodi-seek-backward-60" nil "kocontrol" "-s -60"))
+
+;; kodi-forward kodi forward 2x speed
+(defun kodi-forward ()
+  "Kodi forward 2x speed"
+  (interactive)
+  (start-process "kodi-forward" nil "kocontrol" "-f 2"))
+
+;; kodi-rewind kodi rewind 2x speed
+(defun kodi-rewind ()
+  "Kodi rewind 2x speed"
+  (interactive)
+  (start-process "kodi-rewind" nil "kocontrol" "-r 2"))
+
+
+;; ----------------------------------------------------------------------------------
+;; hydra-kodi
+;; ----------------------------------------------------------------------------------
+
+(defhydra hydra-kodi (:hint nil)
+  "
+  ^Seek^                    ^Actions^          
+  ^^^^^^^^----------------------------------------------
+  _h_: seek back -5         _SPC_: toggle play pause
+  _j_: seek back -60        _x_: stop playback
+  _k_: seek forward 60      _f_: forward       
+  _l_: seek forward 5       _r_: rewind
+  ^
+  "
+  ("h" kodi-seek-backward-5)
+  ("j" kodi-seek-backward-60)
+  ("k" kodi-seek-forward-60)
+  ("l" kodi-seek-forward-5)
+  ("SPC" kodi-play)
+  ("x" kodi-stop)
+  ("f" kodi-forward)
+  ("r" kodi-rewind))
+
+;; ----------------------------------------------------------------------------------
+;; hydra-emacs
+;; ----------------------------------------------------------------------------------
+
+;; auto exit
+(defhydra hydra-emacs (:hint nil :exit t)
+  "
+  ^Actions^             
+  ^^^^^^^^--------------
+  _m_: mpv clipboard
+  _p_: pinch url
+  ^
+  "
+  ("m" mpv-play-clipboard)
+  ("p" pinch-clipboard))
+
+
+;; ----------------------------------------------------------------------------------
+;; hydra-nested
+;; ----------------------------------------------------------------------------------
+
+(defvar hydra-stack nil)
+
+(defhydra hydra-nested (:exit t)
+  ("e" hydra-emacs/body "emacs" :column "hydra")
+  ("m" hydra-mpv/body "mpv" :column "hydra")
+  ("k" hydra-kodi/body "kodi" :column "hydra")
+  ("q" nil "quit"))
+
+(global-set-key (kbd "C-a") 'hydra-nested/body)
 
 
 ;; ----------------------------------------------------------------------------------
@@ -1156,6 +1493,17 @@
       (interactive)
       (mark-whole-buffer)
       (elfeed-search-untag-all-unread))
+
+;; elfeed-send-to-kodi
+(defun elfeed-send-to-kodi (&optional link)
+  "Send the current entry link URL to Kodi."
+  (interactive "P")
+  (let ((link (elfeed-entry-link elfeed-show-entry)))
+    (when link
+      (start-process "kyt-send" nil "kyt-send" "-i" link))))
+
+;; elfeed-send-to-kodi keymap
+(define-key elfeed-show-mode-map (kbd "C-c C-s") 'elfeed-send-to-kodi)
 
 
 ;; ----------------------------------------------------------------------------------
@@ -1258,24 +1606,60 @@ minibuffer with something like `exit-minibuffer'."
 
 
 ;; ----------------------------------------------------------------------------------
-;; shell path
+;; magit
 ;; ----------------------------------------------------------------------------------
 
-(defun set-exec-path-from-shell-PATH ()
-  "Set up Emacs' `exec-path' and PATH environment variable to match
-that used by the user's shell.
+;; ssh auth sock
+(setenv "SSH_AUTH_SOCK" "/run/user/1000/keyring/ssh")
 
-This is particularly useful under Mac OS X and macOS, where GUI
-apps are not started from a shell."
-  (interactive)
-  (let ((path-from-shell (replace-regexp-in-string
-			  "[ \t\n]*$" "" (shell-command-to-string
-					  "$SHELL --login -c 'echo $PATH'"
-						    ))))
-    (setenv "PATH" path-from-shell)
-    (setq exec-path (split-string path-from-shell path-separator))))
 
-(set-exec-path-from-shell-PATH)
+;; ----------------------------------------------------------------------------------
+;; auth-source
+;; ----------------------------------------------------------------------------------
+
+(require 'auth-source)
+(add-to-list 'auth-sources (expand-file-name ".authinfo" user-emacs-directory))
+
+
+;; ----------------------------------------------------------------------------------
+;; gptel
+;; ----------------------------------------------------------------------------------
+
+(require 'gptel)
+(require 'gptel-curl)
+(require 'gptel-transient)
+
+;; gptel config
+(setq gptel-default-mode 'org-mode
+              gptel-post-response-functions #'gptel-end-of-response
+              gptel-expert-commands t)
+
+
+;; ----------------------------------------------------------------------------------
+;; gemini
+;; ----------------------------------------------------------------------------------
+
+(setq gptel-model 'gemini-2.0-flash
+      gptel-backend (gptel-make-gemini "Gemini"
+                              :key (gptel-api-key-from-auth-source "generativelanguage.googleapis.com")
+                              :stream t))
+
+;; display the Gemini buffer in same window
+(add-to-list 'display-buffer-alist
+   '("^*Gemini*" display-buffer-same-window))
+
+
+;; ----------------------------------------------------------------------------------
+;; gptel set org source blocks to use sh and not bash
+;; ----------------------------------------------------------------------------------
+
+(defun my/gptel-fix-src-header (beg end)
+  (save-excursion
+    (goto-char beg)
+    (while (re-search-forward "^#\\+begin_src bash" end t)
+      (replace-match "#+begin_src sh"))))
+
+(add-hook 'gptel-post-response-functions #'my/gptel-fix-src-header)
 
 
 ;; ----------------------------------------------------------------------------------
