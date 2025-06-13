@@ -2,18 +2,18 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("desktop"
+(("dotfiles"
+ (filename . "~/git/nixos/nixos-dotfiles-macbook-air/nixos-dotfiles-macbook-air.org")
+ (front-context-string . "#TITLE: nixos do")
+ (rear-context-string)
+ (position . 1)
+ (last-modified 26700 7168 551600 6000))
+("desktop"
  (filename . "~/Desktop/")
  (front-context-string . "changelog.org\n  ")
  (rear-context-string . "50 Apr 16 17:55 ")
  (position . 76)
  (last-modified 26623 61673 55530 368000))
-("dotfiles"
- (filename . "~/git/nixos/nixos-dotfiles/nixos-dotfiles.org")
- (front-context-string . "#TITLE: nixos do")
- (rear-context-string)
- (position . 1)
- (last-modified 26623 61644 642588 138000))
 ("video"
  (filename . "~/git/personal/bookmarks/video.org")
  (front-context-string . "* links\n** [[vid")
