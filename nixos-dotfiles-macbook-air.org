@@ -17,6 +17,23 @@ C-u C-c C-v t
 emacs --batch -l org --eval '(org-babel-tangle-file "~/git/ubuntu-dotfiles/ubuntu-dotfiles.org")'
 #+end_src
 
+* flake update
+
+run home manager switch with the flake option
+
+#+begin_src sh
+home-manager switch --flake '.#djwilcox@castor'
+#+end_src
+
+run nix flake update, add the lock file and push
+
+#+begin_src sh
+nix flake update 
+git add flake.lock
+git commit -m "Update Home Manager flake.lock after successful switch"
+git push github master
+#+end_src
+
 * nixos dotfiles macbook air
 :PROPERTIES:
 :VISIBILITY: children
