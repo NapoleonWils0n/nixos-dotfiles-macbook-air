@@ -37,6 +37,14 @@
     package = pkgs.emacs-pgtk;
   };
 
+  # --- OBS Studio Configuration for wlrobs ---
+  programs.obs-studio = {
+    enable = true;
+    plugins = with pkgs; [
+      obs-studio-plugins.wlrobs
+    ];
+  };
+
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = with pkgs; [
@@ -60,6 +68,7 @@
     git
     gnome-tweaks
     gnumake
+    grim
     handbrake
     imagemagick
     iosevka
@@ -74,13 +83,14 @@
     nerd-fonts.fira-code
     noto-fonts-emoji
     oath-toolkit
-    obs-studio
+    nsxiv
     openvpn
     pandoc
     pinentry-curses
     playerctl
     ripgrep
     sox
+    tofi
     tmux
     translate-shell
     transmission_4-gtk
@@ -91,6 +101,8 @@
     wget
     widevine-cdm
     wl-clipboard
+    wlrctl
+    wlr-which-key
     zathura
     zip
   ];
