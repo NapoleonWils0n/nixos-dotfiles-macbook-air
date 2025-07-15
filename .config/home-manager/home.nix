@@ -88,6 +88,7 @@
     pandoc
     pinentry-curses
     playerctl
+    qpwgraph
     ripgrep
     sox
     tofi
