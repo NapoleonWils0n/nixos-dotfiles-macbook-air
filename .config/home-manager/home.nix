@@ -99,6 +99,7 @@
     ts
     unzip
     yt-dlp
+    wbg
     wget
     widevine-cdm
     wl-clipboard
