@@ -937,7 +937,7 @@
 (use-package mpv
   :init
   ;; mpv-default-options play fullscreen on second display
-  (setq mpv-default-options '("--fs")))
+  (setq mpv-default-options '("--fs"))
 
 
   :config
