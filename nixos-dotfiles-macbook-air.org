@@ -3151,9 +3151,6 @@ cache=no
 # yt-dlp best format 1080 or less
 ytdl-format="bestvideo[height<=?1080]+bestaudio/best"
 
-# extractor args fix for fragment downloading bug
-ytdl-raw-options=extractor-args="youtube:player_client=default,-ios"
-
 # show milliseconds in the on screen display
 osd-fractions
 
@@ -3183,10 +3180,6 @@ profile-cond=path:find('youtu%.?be') ~= nil
 profile=hwdec
 # override hwdec profile cache setting
 cache=no
-# fullscreen 2nd display
-fs
-fs-screen-name=DP-3
-
 
 # archive.org conditional auto profile match any archive.org url
 [archive]
@@ -3196,10 +3189,6 @@ profile-cond=path:find('archive.org') ~= nil
 profile=hwdec
 # override hwdec profile cache setting
 cache=auto
-# fullscreen 2nd display
-fs
-fs-screen-name=DP-3
-
 
 # bbc iplayer conditional auto profile match any bbc iplayer url
 [iplayer]
@@ -3209,10 +3198,6 @@ profile-cond=path:find('bbc.co.uk/iplayer') ~= nil
 profile=hwdec
 # override hwdec profile cache setting
 cache=no
-# fullscreen 2nd display
-fs
-fs-screen-name=DP-3
-
 
 # bbc iplayer conditional auto profile match any bbc iplayer url
 [bbc]
@@ -3222,9 +3207,6 @@ profile-cond=path:find('bbc:pips:service') ~= nil
 profile=hwdec
 # override hwdec profile cache setting
 cache=no
-# fullscreen 2nd display
-fs
-fs-screen-name=DP-3
 #+END_SRC
 
 *** mpv tangle
