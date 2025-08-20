@@ -3,8 +3,14 @@
   description = "Home Manager configuration for djwilcox on castor";
 
   inputs = {
-    # Nixpkgs, pointing to the unstable branch for the latest packages
+    # nixpkgs pointing to the unstable branch
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+
+    # nixpkgs pointing to the stable branch
+    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-25.05";
+
+    # nixpkgs master branch to get the latest packages no in unstable
+    nixpkgs-master.url = "github:nixos/nixpkgs/master";
 
     # Home Manager itself
     home-manager = {
@@ -15,7 +21,13 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager,... }:
+  outputs = inputs@{
+    self,
+    nixpkgs,
+    nixpkgs-stable,
+    nixpkgs-master,
+    home-manager,
+    ... }:
     let
       # Define the system architecture
       system = "x86_64-linux"; # For your MacBook Air 2011
@@ -31,7 +43,16 @@
         
         # Pass extra arguments to your home.nix if needed.
         # For example, if your home.nix needs access to the 'inputs' set:
-        # extraSpecialArgs = { inherit inputs; };
+        extraSpecialArgs = {
+          pkgs-stable = import nixpkgs-stable {
+            inherit system;
+            config.allowUnfree = true;
+          };
+          pkgs-master = import nixpkgs-master {
+            inherit system;
+            config.allowUnfree = true;
+          };
+        };
         
         # Import your existing home.nix file from its relative path within this repository [3]
         modules = [

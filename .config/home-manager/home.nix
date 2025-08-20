@@ -1,4 +1,10 @@
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  pkgs-stable,
+  pkgs-master,
+  ...
+}:
 
 {
   # Home Manager needs a bit of information about you and the paths it should
@@ -100,7 +106,7 @@
     tree
     ts
     unzip
-    yt-dlp
+    pkgs-master.yt-dlp
     wbg
     wget
     widevine-cdm

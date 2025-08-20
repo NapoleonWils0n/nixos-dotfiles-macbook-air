@@ -63,7 +63,13 @@ to find the exact commit hash
 
 #+NAME: home.nix
 #+BEGIN_SRC nix
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  pkgs-stable,
+  pkgs-master,
+  ...
+}:
 
 {
   # Home Manager needs a bit of information about you and the paths it should
@@ -165,7 +171,7 @@ to find the exact commit hash
     tree
     ts
     unzip
-    yt-dlp
+    pkgs-master.yt-dlp
     wbg
     wget
     widevine-cdm
@@ -662,8 +668,14 @@ with lib.hm.gvariant;
   description = "Home Manager configuration for djwilcox on castor";
 
   inputs = {
-    # Nixpkgs, pointing to the unstable branch for the latest packages
+    # nixpkgs pointing to the unstable branch
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+
+    # nixpkgs pointing to the stable branch
+    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-25.05";
+
+    # nixpkgs master branch to get the latest packages no in unstable
+    nixpkgs-master.url = "github:nixos/nixpkgs/master";
 
     # Home Manager itself
     home-manager = {
@@ -674,7 +686,13 @@ with lib.hm.gvariant;
     };
   };
 
-  outputs = { self, nixpkgs, home-manager,... }:
+  outputs = inputs@{
+    self,
+    nixpkgs,
+    nixpkgs-stable,
+    nixpkgs-master,
+    home-manager,
+    ... }:
     let
       # Define the system architecture
       system = "x86_64-linux"; # For your MacBook Air 2011
@@ -690,7 +708,16 @@ with lib.hm.gvariant;
         
         # Pass extra arguments to your home.nix if needed.
         # For example, if your home.nix needs access to the 'inputs' set:
-        # extraSpecialArgs = { inherit inputs; };
+        extraSpecialArgs = {
+          pkgs-stable = import nixpkgs-stable {
+            inherit system;
+            config.allowUnfree = true;
+          };
+          pkgs-master = import nixpkgs-master {
+            inherit system;
+            config.allowUnfree = true;
+          };
+        };
         
         # Import your existing home.nix file from its relative path within this repository [3]
         modules = [
@@ -3111,8 +3138,8 @@ profile=hwdec
 # hardware acceleration profile
 [hwdec]
 profile-desc="hardware acceleration, no cache, yt-dlp 1080 or less"
-vo=gpu
-hwdec=vaapi
+#vo=gpu
+#hwdec=vaapi
 
 # hide: GNOME's wayland compositor lacks support for the idle inhibit protocol. 
 #msg-level=ffmpeg=fatal,vo/gpu/wayland=no
