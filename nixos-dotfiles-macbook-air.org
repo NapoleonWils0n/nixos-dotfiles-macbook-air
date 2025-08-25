@@ -161,6 +161,7 @@ to find the exact commit hash
     pandoc
     pinentry-curses
     playerctl
+    python314
     qpwgraph
     ripgrep
     sox

@@ -96,6 +96,7 @@
     pandoc
     pinentry-curses
     playerctl
+    python314
     qpwgraph
     ripgrep
     sox
