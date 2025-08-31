@@ -2371,7 +2371,7 @@ systemctl --user enable wallpaper.service
     :after (elfeed mpv)
     :commands (elfeed-tube-fetch elfeed-tube-save elfeed-tube-mpv elfeed-tube-mpv-follow-mode elfeed-tube-mpv-where)
     :init
-    (setq elfeed-tube-mpv-options '("--force-window=yes" "--fs" "--fs-screen=1"))
+    (setq elfeed-tube-mpv-options '("--force-window=yes"))
     :config
     (elfeed-tube-setup)
     :bind (
