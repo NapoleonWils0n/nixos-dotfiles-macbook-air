@@ -62,6 +62,7 @@
     aria2
     aspell
     aspellDicts.en
+    bash-language-server
     bat
     bc
     chromium
@@ -73,6 +74,7 @@
     ffmpeg-full
     file
     fira-code
+    gcc
     git
     gnome-tweaks
     gnumake
@@ -90,12 +92,14 @@
     ncmpc
     nerd-fonts.fira-code
     noto-fonts-emoji
-    oath-toolkit
+    nixd
     nsxiv
+    oath-toolkit
     openvpn
     pandoc
     pinentry-curses
     playerctl
+    python313Packages.python-lsp-server
     python314
     qpwgraph
     ripgrep
