@@ -103,6 +103,7 @@
     python314
     qpwgraph
     ripgrep
+    shellcheck-minimal
     sox
     tofi
     tmux
