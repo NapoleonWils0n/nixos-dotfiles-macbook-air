@@ -1383,6 +1383,9 @@
         (replace-match "#+begin_src sh"))))
 
 
+;; end of gptel use-package config
+(add-hook 'gptel-post-response-functions #'my/gptel-fix-src-header)) 
+
 ;; ----------------------------------------------------------------------------------
 ;; garbage collection
 ;; ----------------------------------------------------------------------------------
