@@ -67,6 +67,7 @@
     bc
     chromium
     curl
+    csvkit
     dict
     dconf-editor
     fd

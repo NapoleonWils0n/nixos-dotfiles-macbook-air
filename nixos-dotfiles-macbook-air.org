@@ -132,6 +132,7 @@ to find the exact commit hash
     bc
     chromium
     curl
+    csvkit
     dict
     dconf-editor
     fd
