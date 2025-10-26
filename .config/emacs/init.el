@@ -431,6 +431,7 @@
 (use-package undo-tree)
 (use-package wgrep)
 (use-package yaml-mode)
+(use-package systemd)
 
 
 ;;----------------------------------------------------------------------------------
