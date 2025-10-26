@@ -1007,6 +1007,16 @@ WantedBy=graphical-session.target
 <<wallpaper.service>>
 #+END_SRC
 
+*** enable dictd.service
+
+enable the dictd.service
+
+#+begin_src sh
+systemctl --user daemon-reload 
+systemctl --user enable dict.service 
+systemctl --user start dict.service 
+#+end_src
+
 *** enable status-bar.service
 
 enable the status-bar.service
