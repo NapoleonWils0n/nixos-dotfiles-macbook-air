@@ -609,7 +609,9 @@
 
   ;; Dired hooks (moved here to ensure my-dired-mode-setup is defined)
   (add-hook 'dired-mode-hook 'my-dired-mode-setup)
-  (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1))))
+  (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1)))
+  ;; media-thumbnail-dired-mode
+  (define-key dired-mode-map (kbd "C-x m") 'media-thumbnail-dired-mode))
 
 
 ;; ------------------------------------------------------------------------------------------------
@@ -631,6 +633,22 @@
            (window-width . 0.20)
            (window-parameters . ((no-delete-other-windows . t)
                                  (mode-line-format . (""))))))))
+
+
+;; ----------------------------------------------------------------------------------
+;; media-thumbnail
+;; ----------------------------------------------------------------------------------
+
+;; use ffmpegthumbnailer to create thumbnails for videos
+
+(use-package media-thumbnail
+  :diminish media-thumbnail-dired-mode
+  :commands (media-thumbnail-dired-mode)
+  :config
+  (setq media-thumbnail-image-width 480)
+  (setq media-thumbnail-cache-dir 
+        (file-name-concat temporary-file-directory "ffmpegthumbnailer/"))
+  (setq media-thumbnail-dired-should-hide-details-fn #'ignore))
 
 
 ;; ----------------------------------------------------------------------------------
