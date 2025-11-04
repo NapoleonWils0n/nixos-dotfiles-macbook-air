@@ -57,986 +57,6 @@ git log --oneline flake.lock
 to find the exact commit hash
 
 * nixos dotfiles macbook air
-** home-manager
-*** home-manager config
-**** home.nix
-
-#+NAME: home.nix
-#+BEGIN_SRC nix
-{
-  config,
-  pkgs,
-  pkgs-stable,
-  pkgs-master,
-  ...
-}:
-
-{
-  # Home Manager needs a bit of information about you and the paths it should
-  # manage.
-  home.username = "djwilcox";
-  home.homeDirectory = "/home/djwilcox";
-
-  # This value determines the Home Manager release that your configuration is
-  # compatible with. This helps avoid breakage when a new Home Manager release
-  # introduces backwards incompatible changes.
-  #
-  # You should not change this value, even if you update Home Manager. If you do
-  # want to update the value, then make sure to first check the Home Manager
-  # release notes.
-  home.stateVersion = "25.05"; # Please read the comment before changing.
-
-  imports = [
-    ./programs/dconf/dconf.nix
-    ./programs/firefox/firefox.nix
-  ];
- 
-  # xdg directories
-  xdg = {
-    userDirs = {
-      enable = true;
-      createDirectories = true;
-      publicShare = null;
-      templates = null;
-    };
-  };
-
-  nixpkgs.config.allowUnfree = true;
-
-  # emacs 
-  programs.emacs = {
-    enable = true;
-    package = pkgs.emacs-pgtk;
-  }; 
-
-
-  # --- OBS Studio Configuration for wlrobs ---
-  programs.obs-studio = {
-    enable = true;
-    plugins = with pkgs; [
-      obs-studio-plugins.wlrobs
-    ];
-  };
-
-  # The home.packages option allows you to install Nix packages into your
-  # environment.
-  home.packages = with pkgs; [
-    abook
-    apg
-    alacritty
-    aria2
-    aspell
-    aspellDicts.en
-    bash-language-server
-    bat
-    bc
-    chromium
-    curl
-    csvkit
-    dict
-    dictdDBs.wordnet
-    dictdDBs.wiktionary
-    dconf-editor
-    fd
-    fdk-aac-encoder
-    ffmpeg-full
-    pkgs-master.ffmpegthumbnailer
-    file
-    fira-code
-    gcc
-    git
-    gnome-tweaks
-    gnumake
-    grim
-    graphviz
-    handbrake
-    imagemagick
-    iosevka
-    libnotify
-    libwebp
-    kodi-wayland
-    mpc
-    mpd
-    mpv
-    ncdu
-    ncmpc
-    nerd-fonts.fira-code
-    noto-fonts-emoji
-    nixd
-    nsxiv
-    oath-toolkit
-    openvpn
-    pandoc
-    pinentry-curses
-    playerctl
-    python313Packages.python-lsp-server
-    python314
-    qpwgraph
-    ripgrep
-    shellcheck-minimal
-    sox
-    tofi
-    tmux
-    translate-shell
-    transmission_4-gtk
-    tree
-    ts
-    unzip
-    pkgs-master.yt-dlp
-    wbg
-    wget
-    pkgs-master.widevine-cdm
-    wl-clipboard
-    wlrctl
-    wlr-which-key
-    zathura
-    zip
-  ];
-
-  # home sessions variables
-  home.sessionVariables = {
-    XCURSOR_THEME = "Adwaita";
-    XCURSOR_SIZE = "24";
-  };
-
-services = {
-  emacs = {
-    enable = true;
-    package = pkgs.emacs-pgtk;
-  };
-  gnome-keyring = {
-    enable = true;
-  };
-  gpg-agent = {
-    enable = true;
-    extraConfig = ''
-      allow-emacs-pinentry
-      allow-loopback-pinentry
-    '';
-  };
-  mpd = {
-    enable = true;
-    musicDirectory = "~/Music";
-    network = {
-      startWhenNeeded = true;
-    };
-    extraConfig = ''
-      audio_output {
-        type "pipewire"
-        name "My PipeWire Output"
-      }
-    '';
-  };
-};
-
-# systemd
-systemd.user.sessionVariables = {
-  SSH_AUTH_SOCK = "/run/user/1000/keyring/ssh";
-  WAYLAND_DISPLAY = "wayland-0";
-};
-
-# gtk
-gtk = {
-  enable = true;
-  gtk3.extraConfig = {
-    gtk-application-prefer-dark-theme = true;
-  };
-  gtk4.extraConfig = {
-    gtk-application-prefer-dark-theme = true;
-  };
-};
-
-# mpv mpris 
-nixpkgs.overlays = [
-  (self: super: {
-    mpv = super.mpv.override {
-      scripts = [ self.mpvScripts.mpris ];
-    };
-  })
-];
-
-  # Home Manager is pretty good at managing dotfiles. The primary way to manage
-  # plain files is through 'home.file'.
-  home.file = {
-    # # Building this configuration will create a copy of 'dotfiles/screenrc' in
-    # # the Nix store. Activating the configuration will then make '~/.screenrc' a
-    # # symlink to the Nix store copy.
-    # ".screenrc".source = dotfiles/screenrc;
-
-    # # You can also set the file content immediately.
-    # ".gradle/gradle.properties".text = ''
-    #   org.gradle.console=verbose
-    #   org.gradle.daemon.idletimeout=3600000
-    # '';
-  };
-
-  # Home Manager can also manage your environment variables through
-  # 'home.sessionVariables'. These will be explicitly sourced when using a
-  # shell provided by Home Manager. If you don't want to manage your shell
-  # through Home Manager then you have to manually source 'hm-session-vars.sh'
-  # located at either
-  #
-  #  ~/.nix-profile/etc/profile.d/hm-session-vars.sh
-  #
-  # or
-  #
-  #  ~/.local/state/nix/profiles/profile/etc/profile.d/hm-session-vars.sh
-  #
-  # or
-  #
-  #  /etc/profiles/per-user/djwilcox/etc/profile.d/hm-session-vars.sh
-  #
-  home.sessionVariables = {
-    # EDITOR = "emacs";
-  };
-
-  # Let Home Manager install and manage itself.
-  programs.home-manager.enable = true;
-}
-#+END_SRC
-
-**** firefox.nix
-
-#+NAME: firefox.nix
-#+begin_src nix
-{ pkgs, ... }:
-
-{
-
-  programs.firefox = {
-    enable = true;
-    package = pkgs.wrapFirefox pkgs.firefox-unwrapped {
-    extraPolicies = {
-      DisableFirefoxStudies = true;
-      DisablePocket = true;
-      DisableTelemetry = true;
-      DisableFirefoxAccounts = true;
-      NoDefaultBookmarks = true;
-      OfferToSaveLogins = false;
-      OffertosaveloginsDefault = false;
-      PasswordManagerEnabled = false;
-      };
-    };
-      profiles = {
-        default = {
-          isDefault = true;
-          extraConfig = ''
-          // beacon = false
-          user_pref("beacon.enabled", false);
-          // about config warning = false
-          user_pref("browser.aboutConfig.showWarning", false); 
-          // strictcontent blocking
-          user_pref("browser.contentblocking.category", "strict");
-          // download dont open panel in toolbar
-          user_pref("browser.download.alwaysOpenPanel", false);
-          // downloads button
-          user_pref("browser.engagement.downloads-button.has-used", true);
-          // tab manager = false
-          user_pref("browser.tabs.tabmanager.enabled", false);
-          // safebrowsing = false
-          user_pref("browser.safebrowsing.appRepURL", "");
-          user_pref("browser.safebrowsing.malware.enabled", false);
-          // browser search
-          user_pref("browser.search.hiddenOneOffs", "Google,Yahoo,Bing,Amazon.com,Twitter");
-          // browser search suggest = false
-          user_pref("browser.search.suggest.enabled", false);
-          // search bar in toolbar
-          user_pref("browser.search.widget.inNavBar", true);
-          // browser send pings = false
-          user_pref("browser.send_pings", false);
-          // homepage blank
-          user_pref("browser.startup.homepage", "about:blank");
-          // startup page
-          user_pref("browser.startup.page", "3");
-          // startup homepage = blank
-          user_pref("browser.startup.homepage", "about:blank");
-          // tabs firefox view = false
-          user_pref("browser.tabs.firefox-view", false);
-          // tabmanager = false
-          user_pref("browser.tabs.tabmanager.enabled", false);
-          // newtab = false
-          user_pref("browser.newtabpage.enabled", false);
-          // activity stream
-          user_pref("browser.newtabpage.activity-stream.showSeach", false);
-          user_pref("browser.newtabpage.activity-stream.showSponsored", false);
-          user_pref("browser.newtabpage.activity-stream.showSponsoredTopSites", false);
-          user_pref("browser.newtabpage.activity-stream.feeds.topsites", false);
-          // bookmarks toolbar visibility = never
-          user_pref("browser.toolbars.bookmarks.visibility", "never");
-          // browser ui density
-          user_pref("browser.uidensity", "1");
-          // urlbar speculativeconnect = false
-          user_pref("browser.urlbar.speculativeConnect.enabled", false);
-          // urlbar bookmarks = false
-          user_pref("browser.urlbar.shortcuts.bookmarks", false);
-          // urlbar history = false
-          user_pref("browser.urlbar.shortcuts.history", false);
-          // urlbar shortcuts tabs = false
-          user_pref("browser.urlbar.shortcuts.tabs", false);
-          // urlbar show search suggestions first = false
-          user_pref("browser.urlbar.showSearchSuggestionsFirst", false);
-          // urlbar suggest bookmarks = false
-          user_pref("browser.urlbar.suggest.bookmark", false);
-          // urlbar suggest engines = false
-          user_pref("browser.urlbar.suggest.engines", false);
-          // urlbar suggest history = false
-          user_pref("browser.urlbar.suggest.history", false);
-          // urlbar suggest open page = false
-          user_pref("browser.urlbar.suggest.openpage", false);
-          // urlbar suggest searches = false
-          user_pref("browser.urlbar.suggest.searches", false);
-          // urlbar suggest topsites = false
-          user_pref("browser.urlbar.suggest.topsites", false);
-          // firefox healthreport upload = false
-          user_pref("datareporting.healthreport.uploadEnabled", false);
-          // dont let sites disable copy and paste
-          user_pref("dom.event.clipboardevents.enabled", false);
-          // https mode = true
-          user_pref("dom.security.https_only_mode", true);
-          // experiments = false
-          user_pref("experiments.activeExperiment", false);
-          user_pref("experiments.enabled", false);
-          user_pref("experiments.supported", false);
-          // remove unifiedextensions
-          user_pref("extensions.unifiedExtensions.enabled", false);
-          // pocket show on home screen = false
-          user_pref("extensions.pocket.enabled", false);
-          user_pref("extensions.pocket.showHome", false);
-          user_pref("extensions.pocket.onSaveRecs", false);
-          user_pref("services.sync.prefs.sync.browser.newtabpage.activity-stream.section.highlights.includePocket", false);
-          user_pref("browser.newtabpage.activity-stream.section.highlights.includePocket", false);
-          // creditcards autofill = false
-          user_pref("extensions.formautofill.creditCards.available", false);
-          // smoothscroll = false
-          user_pref("general.smoothScroll", false);
-          // geo = false
-          user_pref("geo.enabled", false);
-          // general
-          user_pref("gfx.webrender.all", true);
-          user_pref("layout.css.devPixelsPerPx", "1");
-          // media autoplay = 5
-          user_pref("media.autoplay.default", "5");
-          user_pref("media.navigator.enabled", false);
-          user_pref("media.video_stats.enabled", false);
-          // show punycode in the urlbar
-          user_pref("network.IDN_show_punycode", true);
-          // network
-          user_pref("network.allow-experiments", false);
-          user_pref("network.dns.disablePrefetch", true);
-          user_pref("network.http.referer.XOriginPolicy", "2");
-          user_pref("network.http.referer.XOriginTrimmingPolicy", "2");
-          user_pref("network.http.referer.trimmingPolicy", "1");
-          user_pref("network.prefetch-next", false);
-          // magnet links
-          user_pref("network.protocol-handler.expose.magnet", false);
-          // default shortcuts
-          user_pref("permissions.default.shortcuts", "2");
-          // privacy dont track = true
-          user_pref("privacy.donottrackheader.enabled", true);
-          user_pref("privacy.donottrackheader.value", "1");
-          user_pref("privacy.firstparty.isolate", true);
-          user_pref("signon.rememberSignons", false);
-          // disable firefox vpn ad
-          user_pref("browser.vpn_promo.enabled", false);
-          // custom google search
-          user_pref("browser.urlbar.update2.engineAliasRefresh", true);
-          // disable privacy-preserving attribution 
-          user_pref("dom.private-attribution.submission.enabled", false);
-          // desktop notifications
-          user_pref("alerts.useSystemBackend", true);
-          // sidebar - off
-          user_pref("sidebar.revamp", false);
-          // sidebar visibility
-          user_pref("sidebar.visibility", "hide-sidebar");
-          // sidebar tools
-          user_pref("sidebar.main.tools", "history");
-          // vertical tabs - off
-          user_pref("sidebar.verticalTabs", false);
-          // css stylesheets = true
-          user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
-          // theme
-          user_pref("widget.content.gtk-theme-override", "Adwaita:dark");
-          // trim urls
-          user_pref("browser.urlbar.trimURLs", false);
-          '';
-          userChrome = ''
-          /* userChrome.css */
-          
-          @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"); /* only needed once */
-          /* hide close, minimize window buttons */
-          .titlebar-min {display:none!important;}
-          .titlebar-max {display:none!important;}
-          .titlebar-restore {display:none!important;}
-          .titlebar-close {display:none!important;}
-          
-          /* remove the bookmark star in the url bar */
-          #star-button-box {display: none !important}
-          
-          /* Remove items from Firefox menu */
-          #context-sendimage, /* email */
-          #context-bookmarklink, /* bookmark link */
-          /* #context-savelink, save link */
-          #context-take-screenshot, /* take screenshot */
-          /* #context-openlinkintab, open link in tab */
-          /* #context-openlink, open link in new window */
-          #context-openlinkprivate, /* open link in private window */
-          #context-searchselect, /* search for */
-          #context-searchselect-private, /* search for private */
-          #context-inspect-a11y, /* accessability */
-          #context-savepage, /* save page */
-          #context-selectall, /* select all */
-          #context-viewsource, /* view source */
-          #context-back, /* back */
-          #context-forward, /* forward */
-          #context-reload, /* reload */
-          #context-bookmarkpage,/* edit this bookmark */
-          #context-media-playbackrate, /* speed in video menu */
-          #context-media-loop, /* loop video */ 
-          #context-sendvideo, /* email video */
-          #context-sendaudio, /* email audio */
-          #context-sendimage, /* email image */
-          #context-undo, /* undo */
-          #context-redo, /* redo */
-          #context-cut, /* cut */
-          #context-delete, /* delete */
-          #context-keywordfield, /* add a keyword for this search */
-          #context-selectall, /* select all */
-          #alltabs-button 
-          {display: none !important;}
-          '';
-          settings = {
-            "media.gmp-widevinecdm.enabled" = true;
-            "media.gmp-widevinecdm.providerName" = "Widevine Content Decryption Module";
-            "media.gmp-widevinecdm.binaryURL" = ""; # Leave empty to force use of system copy
-            "media.gmp-widevinecdm.version" = "${pkgs.widevine-cdm.version}";
-            "media.eme.enabled" = true;
-          };
-         };
-        };
-      };
-}
-#+end_src
-
-**** dconf.nix
-
-#+NAME: dconf.nix
-#+begin_src nix
-{ lib, ... }:
-
-with lib.hm.gvariant;
-
-{
-  dconf.settings = {
-    "org/gnome/desktop/input-sources" = {
-     color-scheme = "prefer-dark";
-    };
-    "org/gnome/desktop/input-sources" = {
-      xkb-options = [ "custom:alt_win_ctrl,caps:none" ];
-      per-window = false;
-      show-all-sources = true;
-    };
-    "org/gnome/desktop/interface" = {
-      clock-show-date = false;
-      clock-show-weekday = false;
-      color-scheme = "prefer-dark";
-      enable-animations = false;
-    };
-    "org/gnome/desktop/peripherals/touchpad" = {
-      natural-scroll = false;
-      two-finger-scrolling-enabled = true;
-    };
-    "org/gnome/desktop/wm/keybindings" = {
-      close = ["<Shift><Super>c"];
-      minimize = [""];
-      move-to-monitor-left = ["<Shift><Super>h"];
-      move-to-monitor-right = ["<Shift><Super>l"];
-      move-to-workspace-1 = ["<Shift><Super>exclam"];
-      move-to-workspace-2 = ["<Shift><Super>at"];
-      move-to-workspace-3 = ["<Shift><Super>sterling"];
-      move-to-workspace-4 = ["<Shift><Super>dollar"];
-      switch-applications = ["<Super>j"];
-      switch-applications-backward = ["<Super>k"];
-      switch-to-workspace-1 = ["<Super>1"];
-      switch-to-workspace-2 = ["<Super>2"];
-      switch-to-workspace-3 = ["<Super>3"];
-      switch-to-workspace-4 = ["<Super>4"];
-      switch-to-workspace-5 = ["<Super>5"];
-      switch-to-workspace-6 = ["<Super>6"];
-      switch-to-workspace-7 = ["<Super>7"];
-      switch-to-workspace-8 = ["<Super>8"];
-      switch-to-workspace-9 = ["<Super>9"];
-      switch-to-workspace-left = ["<Super>h"];
-      switch-to-workspace-right = ["<Super>l"];
-    };
-    "org/gnome/mutter" = {
-      center-new-windows = true;
-      dynamic-workspaces = true;
-      focus-change-on-pointer-rest = false;
-      overlay-key = "Super_L";
-      workspaces-only-on-primary = true;
-    };
-    "org/gnome/settings-daemon/plugins/media-keys" = {
-      play = ["<Alt><Super>space"];
-      volume-step = 5;
-    };
-    "org/gnome/settings-daemon/power" = {
-      idle-dim = false;
-      sleep-inactive-ac-timeout = 3600;
-      sleep-inactive-ac-type = "nothing";
-    };
-    "org/gnome/shell/keybindings" = {
-      switch-to-application-1 = [""];
-      switch-to-application-2 = [""];
-      switch-to-application-3 = [""];
-      switch-to-application-4 = [""];
-      switch-to-application-5 = [""];
-      switch-to-application-6 = [""];
-      switch-to-application-7 = [""];
-      switch-to-application-8 = [""];
-      switch-to-application-9 = [""];
-      toggle-application-view = ["<Primary><Super>p"];
-    };
-    "org/gnome/shell/ubuntu" = {
-      color-scheme = "prefer-dark";
-    };
-    "org/gnome/system/location" = {
-      enabled = false;
-    };
-    "org/gnome/desktop/wm/preferences" = {
-      audible-bell = false;
-      auto-raise = true;
-      focus-mode = "sloppy";
-    };
-  };
-}
-#+end_src
-
-*** home-manager tangle
-**** home.nix tangle
-:PROPERTIES:
-:ORDERED:  t
-:END:
-
-+ home dir
-
-#+NAME: home.nix-home-dir
-#+BEGIN_SRC nix :noweb yes :tangle "~/.config/home-manager/home.nix"
-<<home.nix>>
-#+END_SRC
-  
-+ current dir
-
-#+NAME: home.nix-current-dir
-#+BEGIN_SRC nix :noweb yes :tangle ".config/home-manager/home.nix"
-<<home.nix>>
-#+END_SRC
-
-**** firefox.nix tangle
-:PROPERTIES:
-:ORDERED:  t
-:END:
-
-+ home dir
-
-#+NAME: firefox.nix-home-dir
-#+BEGIN_SRC nix :noweb yes :tangle "~/.config/home-manager/programs/firefox/firefox.nix"
-<<firefox.nix>>
-#+END_SRC
-  
-+ current dir
-
-#+NAME: firefox.nix-current-dir
-#+BEGIN_SRC nix :noweb yes :tangle ".config/home-manager/programs/firefox/firefox.nix"
-<<firefox.nix>>
-#+END_SRC
-
-**** dconf.nix tangle
-:PROPERTIES:
-:ORDERED:  t
-:END:
-
-+ home dir
-
-#+NAME: dconf.nix-home-dir
-#+BEGIN_SRC nix :noweb yes :tangle "~/.config/home-manager/programs/dconf/dconf.nix"
-<<dconf.nix>>
-#+END_SRC
-  
-+ current dir
-
-#+NAME: dconf.nix-current-dir
-#+BEGIN_SRC nix :noweb yes :tangle ".config/home-manager/programs/dconf/dconf.nix"
-<<dconf.nix>>
-#+END_SRC
-
-** flake.nix
-*** flake.nix config
-
-#+NAME: flake.nix
-#+begin_src nix
-# ~/nixos-dotfiles-macbook-air/flake.nix
-{
-  description = "Home Manager configuration for djwilcox on castor";
-
-  inputs = {
-    # nixpkgs pointing to the unstable branch
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-
-    # nixpkgs pointing to the stable branch
-    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-25.05";
-
-    # nixpkgs master branch to get the latest packages no in unstable
-    nixpkgs-master.url = "github:nixos/nixpkgs/master";
-
-    # Home Manager itself
-    home-manager = {
-      url = "github:nix-community/home-manager"; # Defaults to master/unstable branch [1]
-      # Crucial: Ensure Home Manager uses the same Nixpkgs as this flake
-      # to prevent version conflicts and ensure consistency. [1, 2]
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-  };
-
-  outputs = inputs@{
-    self,
-    nixpkgs,
-    nixpkgs-stable,
-    nixpkgs-master,
-    home-manager,
-    ... }:
-    let
-      # Define the system architecture
-      system = "x86_64-linux"; # For your MacBook Air 2011
-      # Define your username
-      username = "djwilcox"; # Replace with your actual username if different
-    in
-    {
-      # Define the Home Manager configuration for your user on this host
-      # The attribute name is typically "username@hostname" for standalone setups [3]
-      homeConfigurations."${username}@castor" = home-manager.lib.homeManagerConfiguration {
-        # Pass the Nixpkgs instance to Home Manager
-        pkgs = nixpkgs.legacyPackages.${system}; # Use the unstable nixpkgs for packages [3]
-        
-        # Pass extra arguments to your home.nix if needed.
-        # For example, if your home.nix needs access to the 'inputs' set:
-        extraSpecialArgs = {
-          pkgs-stable = import nixpkgs-stable {
-            inherit system;
-            config.allowUnfree = true;
-          };
-          pkgs-master = import nixpkgs-master {
-            inherit system;
-            config.allowUnfree = true;
-          };
-        };
-        
-        # Import your existing home.nix file from its relative path within this repository [3]
-        modules = [
-        ./.config/home-manager/home.nix # Your existing Home Manager configuration
-        ];
-      };
-    };
-}
-#+end_src
-
-*** flake.nix tangle
-
-+ current dir
-
-#+NAME: flake.nix-current-dir
-#+BEGIN_SRC nix :noweb yes :tangle "flake.nix"
-<<flake.nix>>
-#+END_SRC
-
-** nixpkgs
-*** config.nix
-**** config.nix config
-
-#+NAME: config.nix
-#+begin_src nix
-{
-  allowUnfree = true;
-  http2 = false; # Disable HTTP/2
-  system-openssl = true; # Use system OpenSSL
-}
-#+end_src
-
-**** config.nix tangle
-
-+ home dir
-
-#+NAME: config.nix-home-dir
-#+BEGIN_SRC nix :noweb yes :tangle "~/.config/nixpkgs/config.nix"
-<<config.nix>>
-#+END_SRC
-  
-+ current dir
-
-#+NAME: config.nix-current-dir
-#+BEGIN_SRC nix :noweb yes :tangle ".config/nixpkgs/config.nix"
-<<config.nix>>
-#+END_SRC
-
-** tofi
-*** tofi config
-
-#+NAME: tofi
-#+BEGIN_SRC conf
-anchor = top
-#output = "eDP-1"
-border-width = 0
-drun-launch = true
-font = "~/.nix-profile/share/fonts/truetype/Iosevka-Bold.ttf"
-font-size = 12
-height = 32
-hint-font = false
-horizontal = true
-min-input-width = 0
-num-results = 10
-outline-width = 0
-padding-bottom = 0
-padding-left = 0
-padding-right = 0
-padding-top = 0
-prompt-color = #eee8d5
-prompt-text = ""
-input-color = #eee8d5
-result-spacing = 18
-selection-color = #002b36
-default-result-color = #eee8d5
-text-color = #eee8d5
-width = 100%
-default-result-background = #073642
-selection-background = #268bd2
-background-color = #005577 
-#background-color = #2b2b2b
-prompt-background=#002b36
-selection-background-padding = 4
-#selection-background-corner-radius = 6
-default-result-background-padding = 4
-#default-result-background-corner-radius = 6
-#+END_SRC
-
-*** tofi tangle
-
-+ home dir
-
-#+NAME: tofi-home-dir
-#+BEGIN_SRC conf :noweb yes :tangle "~/.config/tofi/config"
-<<tofi>>
-#+END_SRC
-
-+ current dir
-
-#+NAME: tofi-current-dir
-#+BEGIN_SRC conf :noweb yes :tangle ".config/tofi/config"
-<<tofi>>
-#+END_SRC
-
-** wlr-which-key
-*** wlr-which-key config
-
-#+NAME: wlr-which-key
-#+BEGIN_SRC yaml
-# Theming
-font: Fira Code 18
-background: "#282828d0"
-color: "#fbf1c7"
-border: "#005577"
-separator: " ➜ "
-border_width: 2
-corner_r: 10
-padding: 15 # Defaults to corner_r
-
-# Anchor and margin
-anchor: center # One of center, left, right, top, bottom, bottom-left, top-left, etc.
-# Only relevant when anchor is not center
-margin_right: 0
-margin_bottom: 0
-margin_left: 0
-margin_top: 0
-
-menu: 
-  "m": { desc: mpv, cmd: emacsclient -cF "((visibility . nil))" -e "(mpv-play-clipboard)" }
-  "d": { desc: ytdlp-mpv, cmd: /home/djwilcox/bin/ytdlp-mpv -i "$(wl-paste)" -t off }
-  "p": { desc: pinch, cmd: /home/djwilcox/bin/pinch -i "$(wl-paste)" }
-  "s":
-    desc: screenshot
-    submenu:
-      "l": { desc: laptop, cmd: grim -o eDP-1 }
-      "m": { desc: monitor, cmd: grim -o DP-3 }
-      "b": { desc: both, cmd: grim }
-#+END_SRC
-
-*** wlr-which-key tangle
-
-+ home dir
-
-#+NAME: wlr-which-key-home-dir
-#+BEGIN_SRC yaml :noweb yes :tangle "~/.config/wlr-which-key/config.yaml"
-<<wlr-which-key>>
-#+END_SRC
-
-+ current dir
-
-#+NAME: wlr-which-key-current-dir
-#+BEGIN_SRC yaml :noweb yes :tangle ".config/wlr-which-key/config.yaml"
-<<wlr-which-key>>
-#+END_SRC
-
-** systemd
-*** systemd config
-**** dictd.service
-
-#+NAME: dictd.service
-#+begin_src conf
-[Unit]
-Description=Dictionary Server Daemon
-After=network-online.target
-
-[Service]
-# Type should be 'forking' because dictd daemonizes by default.
-Type=forking
-# SuccessExitStatus is needed because dictd typically exits with 143 (SIGTERM)
-SuccessExitStatus=143
-
-# IMPORTANT: This environment variable is often required in NixOS/Home Manager 
-# environments for programs (like dictd) that rely on locale data.
-Environment=LOCALE_ARCHIVE=/run/current-system/sw/lib/locale/locale-archive
-
-# ExecStart: 
-# - Removed -f flag (Type=forking handles this)
-# - Added -s (syslog logging, helpful for debugging)
-# - Added --locale en_US.UTF-8 (dictd often requires this in Nix)
-ExecStart=%h/.nix-profile/bin/dictd -s -c %h/.dictd.conf --locale en_US.UTF-8
-
-# This is the key: Systemd creates this directory (/run/user/<UID>/dictd)
-# and makes it available to the service, solving the permission problem.
-RuntimeDirectory=dictd
-RuntimeDirectoryMode=0700
-
-# Security and management
-Restart=always
-
-[Install]
-WantedBy=default.target
-#+end_src
-
-**** status-bar.service
-
-#+NAME: status-bar.service
-#+BEGIN_SRC conf
-[Unit]
-Description=dwl Custom Status Bar Feeder
-After=graphical-session.target
-BindsTo=graphical-session.target
-
-[Service]
-ExecStart=/home/djwilcox/bin/status-bar
-Restart=on-failure
-RestartSec=5
-Type=simple
-
-[Install]
-WantedBy=graphical-session.target
-#+END_SRC
-
-**** wallpaper.service
-
-#+NAME: wallpaper.service
-#+BEGIN_SRC conf
-[Unit]
-Description=wbg wlroots wallpaper
-After=graphical-session.target
-BindsTo=graphical-session.target
-
-[Service]
-ExecStart=/home/djwilcox/bin/wallpaper
-Restart=on-failure
-RestartSec=5
-Type=simple
-
-[Install]
-WantedBy=graphical-session.target
-#+END_SRC
-
-*** systemd tangle
-**** dictd.service
-
-+ home dir
-
-#+NAME: dictd.service-home-dir
-#+BEGIN_SRC conf :noweb yes :tangle "~/.config/systemd/user/dictd.service"
-<<dictd.service>>
-#+END_SRC
-
-+ current dir
-
-#+NAME: dictd.service-current-dir
-#+BEGIN_SRC conf :noweb yes :tangle ".config/systemd/user/dictd.service"
-<<dictd.service>>
-#+END_SRC
-
-**** status-bar.service
-
-+ home dir
-
-#+NAME: status-bar.service-home-dir
-#+BEGIN_SRC conf :noweb yes :tangle "~/.config/systemd/user/status-bar.service"
-<<status-bar.service>>
-#+END_SRC
-
-+ current dir
-
-#+NAME: status-bar.service-current-dir
-#+BEGIN_SRC conf :noweb yes :tangle ".config/systemd/user/status-bar.service"
-<<status-bar.service>>
-#+END_SRC
-
-**** wallpaper.service
-
-+ home dir
-
-#+NAME: wallpaper.service-home-dir
-#+BEGIN_SRC conf :noweb yes :tangle "~/.config/systemd/user/wallpaper.service"
-<<wallpaper.service>>
-#+END_SRC
-
-+ current dir
-
-#+NAME: wallpaper.service-current-dir
-#+BEGIN_SRC conf :noweb yes :tangle ".config/systemd/user/wallpaper.service"
-<<wallpaper.service>>
-#+END_SRC
-
-*** enable dictd.service
-
-enable the dictd.service
-
-#+begin_src sh
-systemctl --user daemon-reload 
-systemctl --user enable dictd.service 
-systemctl --user start dictd.service 
-#+end_src
-
-*** enable status-bar.service
-
-enable the status-bar.service
-
-#+begin_src sh
-systemctl --user daemon-reload 
-systemctl --user enable status-bar.service 
-#+end_src
-
-*** enable wallpaper.service
-
-enable the wallpaper.service
-
-#+begin_src sh
-systemctl --user daemon-reload 
-systemctl --user enable wallpaper.service 
-#+end_src
-
 ** emacs
 *** emacs config
 **** init.el
@@ -1182,9 +202,6 @@ systemctl --user enable wallpaper.service
 
 ;; M-n, M-p recall previous mini buffer commands
 (setq history-length 25)
-
-;; Use spaces instead of tabs
-(setq-default indent-tabs-mode nil)
 
 ;; Use spaces instead of tabs
 (setq-default indent-tabs-mode nil)
@@ -3279,23 +2296,31 @@ This helps diagnose keybinding issues and conflicts."
 #+begin_src emacs-lisp
 ;;; early-init.el -*- lexical-binding: t; -*-
 
+;; ----------------------------------------------------------------------------------
+;; early-init.el
+;; ----------------------------------------------------------------------------------
+
+;; ----------------------------------------------------------------------------------
 ;;; Garbage collection
+;; ----------------------------------------------------------------------------------
+
 ;; Increase the GC threshold for faster startup
 ;; The default is 800 kilobytes.  Measured in bytes.
 (setq gc-cons-threshold (* 50 1000 1000))
 
-;;; UI configuration
+;; Don’t compact font caches during GC.
+(setq inhibit-compacting-font-caches t)
+
+
+;; ----------------------------------------------------------------------------------
+;; UI configuration
+;; ----------------------------------------------------------------------------------
+
 ;; Remove some unneeded UI elements (the user can turn back on anything they wish)
 (setq inhibit-startup-message t)
 (push '(tool-bar-lines . 0) default-frame-alist)
 (push '(menu-bar-lines . 0) default-frame-alist)
 (push '(vertical-scroll-bars) default-frame-alist)
-
-;; general settings
-(setq initial-scratch-message nil)
-
-;; Don’t compact font caches during GC.
-(setq inhibit-compacting-font-caches t)
 
 ;; start the initial frame maximized
 (add-to-list 'initial-frame-alist '(fullscreen . maximized))
@@ -3306,11 +2331,24 @@ This helps diagnose keybinding issues and conflicts."
 ;; no title bar
 (add-to-list 'default-frame-alist '(undecorated . t))
 
-;;Tell emacs where is your personal elisp lib dir
-(add-to-list 'load-path "~/.config/emacs/lisp/")
+
+;; ----------------------------------------------------------------------------------
+;; scratch buffer
+;; ----------------------------------------------------------------------------------
+
+;; general settings
+(setq initial-scratch-message nil)
 
 ;; Make the initial buffer load faster by setting its mode to fundamental-mode
 (customize-set-variable 'initial-major-mode 'fundamental-mode)
+
+
+;; ----------------------------------------------------------------------------------
+;; personal elisp lib dir
+;; ----------------------------------------------------------------------------------
+
+;;Tell emacs where is your personal elisp lib dir
+(add-to-list 'load-path "~/.config/emacs/lisp/")
 #+end_src
 
 **** bookmarks config
@@ -3422,6 +2460,986 @@ This helps diagnose keybinding issues and conflicts."
 #+BEGIN_SRC emacs-lisp :noweb yes :tangle ".config/emacs/bookmarks"
 <<emacs-bookmarks>>
 #+END_SRC
+
+** home-manager
+*** home-manager config
+**** home.nix
+
+#+NAME: home.nix
+#+BEGIN_SRC nix
+{
+  config,
+  pkgs,
+  pkgs-stable,
+  pkgs-master,
+  ...
+}:
+
+{
+  # Home Manager needs a bit of information about you and the paths it should
+  # manage.
+  home.username = "djwilcox";
+  home.homeDirectory = "/home/djwilcox";
+
+  # This value determines the Home Manager release that your configuration is
+  # compatible with. This helps avoid breakage when a new Home Manager release
+  # introduces backwards incompatible changes.
+  #
+  # You should not change this value, even if you update Home Manager. If you do
+  # want to update the value, then make sure to first check the Home Manager
+  # release notes.
+  home.stateVersion = "25.05"; # Please read the comment before changing.
+
+  imports = [
+    ./programs/dconf/dconf.nix
+    ./programs/firefox/firefox.nix
+  ];
+ 
+  # xdg directories
+  xdg = {
+    userDirs = {
+      enable = true;
+      createDirectories = true;
+      publicShare = null;
+      templates = null;
+    };
+  };
+
+  nixpkgs.config.allowUnfree = true;
+
+  # emacs 
+  programs.emacs = {
+    enable = true;
+    package = pkgs.emacs-pgtk;
+  }; 
+
+
+  # --- OBS Studio Configuration for wlrobs ---
+  programs.obs-studio = {
+    enable = true;
+    plugins = with pkgs; [
+      obs-studio-plugins.wlrobs
+    ];
+  };
+
+  # The home.packages option allows you to install Nix packages into your
+  # environment.
+  home.packages = with pkgs; [
+    abook
+    apg
+    alacritty
+    aria2
+    aspell
+    aspellDicts.en
+    bash-language-server
+    bat
+    bc
+    chromium
+    curl
+    csvkit
+    dict
+    dictdDBs.wordnet
+    dictdDBs.wiktionary
+    dconf-editor
+    fd
+    fdk-aac-encoder
+    ffmpeg-full
+    pkgs-master.ffmpegthumbnailer
+    file
+    fira-code
+    gcc
+    git
+    gnome-tweaks
+    gnumake
+    grim
+    graphviz
+    handbrake
+    imagemagick
+    iosevka
+    libnotify
+    libwebp
+    kodi-wayland
+    mpc
+    mpd
+    mpv
+    ncdu
+    ncmpc
+    nerd-fonts.fira-code
+    noto-fonts-emoji
+    nixd
+    nsxiv
+    oath-toolkit
+    openvpn
+    pandoc
+    pinentry-curses
+    playerctl
+    python313Packages.python-lsp-server
+    python314
+    qpwgraph
+    ripgrep
+    shellcheck-minimal
+    sox
+    tofi
+    tmux
+    translate-shell
+    transmission_4-gtk
+    tree
+    ts
+    unzip
+    pkgs-master.yt-dlp
+    wbg
+    wget
+    pkgs-master.widevine-cdm
+    wl-clipboard
+    wlrctl
+    wlr-which-key
+    zathura
+    zip
+  ];
+
+  # home sessions variables
+  home.sessionVariables = {
+    XCURSOR_THEME = "Adwaita";
+    XCURSOR_SIZE = "24";
+  };
+
+services = {
+  emacs = {
+    enable = true;
+    package = pkgs.emacs-pgtk;
+  };
+  gnome-keyring = {
+    enable = true;
+  };
+  gpg-agent = {
+    enable = true;
+    extraConfig = ''
+      allow-emacs-pinentry
+      allow-loopback-pinentry
+    '';
+  };
+  mpd = {
+    enable = true;
+    musicDirectory = "~/Music";
+    network = {
+      startWhenNeeded = true;
+    };
+    extraConfig = ''
+      audio_output {
+        type "pipewire"
+        name "My PipeWire Output"
+      }
+    '';
+  };
+};
+
+# systemd
+systemd.user.sessionVariables = {
+  SSH_AUTH_SOCK = "/run/user/1000/keyring/ssh";
+  WAYLAND_DISPLAY = "wayland-0";
+};
+
+# gtk
+gtk = {
+  enable = true;
+  gtk3.extraConfig = {
+    gtk-application-prefer-dark-theme = true;
+  };
+  gtk4.extraConfig = {
+    gtk-application-prefer-dark-theme = true;
+  };
+};
+
+# mpv mpris 
+nixpkgs.overlays = [
+  (self: super: {
+    mpv = super.mpv.override {
+      scripts = [ self.mpvScripts.mpris ];
+    };
+  })
+];
+
+  # Home Manager is pretty good at managing dotfiles. The primary way to manage
+  # plain files is through 'home.file'.
+  home.file = {
+    # # Building this configuration will create a copy of 'dotfiles/screenrc' in
+    # # the Nix store. Activating the configuration will then make '~/.screenrc' a
+    # # symlink to the Nix store copy.
+    # ".screenrc".source = dotfiles/screenrc;
+
+    # # You can also set the file content immediately.
+    # ".gradle/gradle.properties".text = ''
+    #   org.gradle.console=verbose
+    #   org.gradle.daemon.idletimeout=3600000
+    # '';
+  };
+
+  # Home Manager can also manage your environment variables through
+  # 'home.sessionVariables'. These will be explicitly sourced when using a
+  # shell provided by Home Manager. If you don't want to manage your shell
+  # through Home Manager then you have to manually source 'hm-session-vars.sh'
+  # located at either
+  #
+  #  ~/.nix-profile/etc/profile.d/hm-session-vars.sh
+  #
+  # or
+  #
+  #  ~/.local/state/nix/profiles/profile/etc/profile.d/hm-session-vars.sh
+  #
+  # or
+  #
+  #  /etc/profiles/per-user/djwilcox/etc/profile.d/hm-session-vars.sh
+  #
+  home.sessionVariables = {
+    # EDITOR = "emacs";
+  };
+
+  # Let Home Manager install and manage itself.
+  programs.home-manager.enable = true;
+}
+#+END_SRC
+
+**** firefox.nix
+
+#+NAME: firefox.nix
+#+begin_src nix
+{ pkgs, ... }:
+
+{
+
+  programs.firefox = {
+    enable = true;
+    package = pkgs.wrapFirefox pkgs.firefox-unwrapped {
+    extraPolicies = {
+      DisableFirefoxStudies = true;
+      DisablePocket = true;
+      DisableTelemetry = true;
+      DisableFirefoxAccounts = true;
+      NoDefaultBookmarks = true;
+      OfferToSaveLogins = false;
+      OffertosaveloginsDefault = false;
+      PasswordManagerEnabled = false;
+      };
+    };
+      profiles = {
+        default = {
+          isDefault = true;
+          extraConfig = ''
+          // beacon = false
+          user_pref("beacon.enabled", false);
+          // about config warning = false
+          user_pref("browser.aboutConfig.showWarning", false); 
+          // strictcontent blocking
+          user_pref("browser.contentblocking.category", "strict");
+          // download dont open panel in toolbar
+          user_pref("browser.download.alwaysOpenPanel", false);
+          // downloads button
+          user_pref("browser.engagement.downloads-button.has-used", true);
+          // tab manager = false
+          user_pref("browser.tabs.tabmanager.enabled", false);
+          // safebrowsing = false
+          user_pref("browser.safebrowsing.appRepURL", "");
+          user_pref("browser.safebrowsing.malware.enabled", false);
+          // browser search
+          user_pref("browser.search.hiddenOneOffs", "Google,Yahoo,Bing,Amazon.com,Twitter");
+          // browser search suggest = false
+          user_pref("browser.search.suggest.enabled", false);
+          // search bar in toolbar
+          user_pref("browser.search.widget.inNavBar", true);
+          // browser send pings = false
+          user_pref("browser.send_pings", false);
+          // homepage blank
+          user_pref("browser.startup.homepage", "about:blank");
+          // startup page
+          user_pref("browser.startup.page", "3");
+          // startup homepage = blank
+          user_pref("browser.startup.homepage", "about:blank");
+          // tabs firefox view = false
+          user_pref("browser.tabs.firefox-view", false);
+          // tabmanager = false
+          user_pref("browser.tabs.tabmanager.enabled", false);
+          // newtab = false
+          user_pref("browser.newtabpage.enabled", false);
+          // activity stream
+          user_pref("browser.newtabpage.activity-stream.showSeach", false);
+          user_pref("browser.newtabpage.activity-stream.showSponsored", false);
+          user_pref("browser.newtabpage.activity-stream.showSponsoredTopSites", false);
+          user_pref("browser.newtabpage.activity-stream.feeds.topsites", false);
+          // bookmarks toolbar visibility = never
+          user_pref("browser.toolbars.bookmarks.visibility", "never");
+          // browser ui density
+          user_pref("browser.uidensity", "1");
+          // urlbar speculativeconnect = false
+          user_pref("browser.urlbar.speculativeConnect.enabled", false);
+          // urlbar bookmarks = false
+          user_pref("browser.urlbar.shortcuts.bookmarks", false);
+          // urlbar history = false
+          user_pref("browser.urlbar.shortcuts.history", false);
+          // urlbar shortcuts tabs = false
+          user_pref("browser.urlbar.shortcuts.tabs", false);
+          // urlbar show search suggestions first = false
+          user_pref("browser.urlbar.showSearchSuggestionsFirst", false);
+          // urlbar suggest bookmarks = false
+          user_pref("browser.urlbar.suggest.bookmark", false);
+          // urlbar suggest engines = false
+          user_pref("browser.urlbar.suggest.engines", false);
+          // urlbar suggest history = false
+          user_pref("browser.urlbar.suggest.history", false);
+          // urlbar suggest open page = false
+          user_pref("browser.urlbar.suggest.openpage", false);
+          // urlbar suggest searches = false
+          user_pref("browser.urlbar.suggest.searches", false);
+          // urlbar suggest topsites = false
+          user_pref("browser.urlbar.suggest.topsites", false);
+          // firefox healthreport upload = false
+          user_pref("datareporting.healthreport.uploadEnabled", false);
+          // dont let sites disable copy and paste
+          user_pref("dom.event.clipboardevents.enabled", false);
+          // https mode = true
+          user_pref("dom.security.https_only_mode", true);
+          // experiments = false
+          user_pref("experiments.activeExperiment", false);
+          user_pref("experiments.enabled", false);
+          user_pref("experiments.supported", false);
+          // remove unifiedextensions
+          user_pref("extensions.unifiedExtensions.enabled", false);
+          // pocket show on home screen = false
+          user_pref("extensions.pocket.enabled", false);
+          user_pref("extensions.pocket.showHome", false);
+          user_pref("extensions.pocket.onSaveRecs", false);
+          user_pref("services.sync.prefs.sync.browser.newtabpage.activity-stream.section.highlights.includePocket", false);
+          user_pref("browser.newtabpage.activity-stream.section.highlights.includePocket", false);
+          // creditcards autofill = false
+          user_pref("extensions.formautofill.creditCards.available", false);
+          // smoothscroll = false
+          user_pref("general.smoothScroll", false);
+          // geo = false
+          user_pref("geo.enabled", false);
+          // general
+          user_pref("gfx.webrender.all", true);
+          user_pref("layout.css.devPixelsPerPx", "1");
+          // media autoplay = 5
+          user_pref("media.autoplay.default", "5");
+          user_pref("media.navigator.enabled", false);
+          user_pref("media.video_stats.enabled", false);
+          // show punycode in the urlbar
+          user_pref("network.IDN_show_punycode", true);
+          // network
+          user_pref("network.allow-experiments", false);
+          user_pref("network.dns.disablePrefetch", true);
+          user_pref("network.http.referer.XOriginPolicy", "2");
+          user_pref("network.http.referer.XOriginTrimmingPolicy", "2");
+          user_pref("network.http.referer.trimmingPolicy", "1");
+          user_pref("network.prefetch-next", false);
+          // magnet links
+          user_pref("network.protocol-handler.expose.magnet", false);
+          // default shortcuts
+          user_pref("permissions.default.shortcuts", "2");
+          // privacy dont track = true
+          user_pref("privacy.donottrackheader.enabled", true);
+          user_pref("privacy.donottrackheader.value", "1");
+          user_pref("privacy.firstparty.isolate", true);
+          user_pref("signon.rememberSignons", false);
+          // disable firefox vpn ad
+          user_pref("browser.vpn_promo.enabled", false);
+          // custom google search
+          user_pref("browser.urlbar.update2.engineAliasRefresh", true);
+          // disable privacy-preserving attribution 
+          user_pref("dom.private-attribution.submission.enabled", false);
+          // desktop notifications
+          user_pref("alerts.useSystemBackend", true);
+          // sidebar - off
+          user_pref("sidebar.revamp", false);
+          // sidebar visibility
+          user_pref("sidebar.visibility", "hide-sidebar");
+          // sidebar tools
+          user_pref("sidebar.main.tools", "history");
+          // vertical tabs - off
+          user_pref("sidebar.verticalTabs", false);
+          // css stylesheets = true
+          user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
+          // theme
+          user_pref("widget.content.gtk-theme-override", "Adwaita:dark");
+          // trim urls
+          user_pref("browser.urlbar.trimURLs", false);
+          '';
+          userChrome = ''
+          /* userChrome.css */
+          
+          @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"); /* only needed once */
+          /* hide close, minimize window buttons */
+          .titlebar-min {display:none!important;}
+          .titlebar-max {display:none!important;}
+          .titlebar-restore {display:none!important;}
+          .titlebar-close {display:none!important;}
+          
+          /* remove the bookmark star in the url bar */
+          #star-button-box {display: none !important}
+          
+          /* Remove items from Firefox menu */
+          #context-sendimage, /* email */
+          #context-bookmarklink, /* bookmark link */
+          /* #context-savelink, save link */
+          #context-take-screenshot, /* take screenshot */
+          /* #context-openlinkintab, open link in tab */
+          /* #context-openlink, open link in new window */
+          #context-openlinkprivate, /* open link in private window */
+          #context-searchselect, /* search for */
+          #context-searchselect-private, /* search for private */
+          #context-inspect-a11y, /* accessability */
+          #context-savepage, /* save page */
+          #context-selectall, /* select all */
+          #context-viewsource, /* view source */
+          #context-back, /* back */
+          #context-forward, /* forward */
+          #context-reload, /* reload */
+          #context-bookmarkpage,/* edit this bookmark */
+          #context-media-playbackrate, /* speed in video menu */
+          #context-media-loop, /* loop video */ 
+          #context-sendvideo, /* email video */
+          #context-sendaudio, /* email audio */
+          #context-sendimage, /* email image */
+          #context-undo, /* undo */
+          #context-redo, /* redo */
+          #context-cut, /* cut */
+          #context-delete, /* delete */
+          #context-keywordfield, /* add a keyword for this search */
+          #context-selectall, /* select all */
+          #alltabs-button 
+          {display: none !important;}
+          '';
+          settings = {
+            "media.gmp-widevinecdm.enabled" = true;
+            "media.gmp-widevinecdm.providerName" = "Widevine Content Decryption Module";
+            "media.gmp-widevinecdm.binaryURL" = ""; # Leave empty to force use of system copy
+            "media.gmp-widevinecdm.version" = "${pkgs.widevine-cdm.version}";
+            "media.eme.enabled" = true;
+          };
+         };
+        };
+      };
+}
+#+end_src
+
+**** dconf.nix
+
+#+NAME: dconf.nix
+#+begin_src nix
+{ lib, ... }:
+
+with lib.hm.gvariant;
+
+{
+  dconf.settings = {
+    "org/gnome/desktop/input-sources" = {
+     color-scheme = "prefer-dark";
+    };
+    "org/gnome/desktop/input-sources" = {
+      xkb-options = [ "custom:alt_win_ctrl,caps:none" ];
+      per-window = false;
+      show-all-sources = true;
+    };
+    "org/gnome/desktop/interface" = {
+      clock-show-date = false;
+      clock-show-weekday = false;
+      color-scheme = "prefer-dark";
+      enable-animations = false;
+    };
+    "org/gnome/desktop/peripherals/touchpad" = {
+      natural-scroll = false;
+      two-finger-scrolling-enabled = true;
+    };
+    "org/gnome/desktop/wm/keybindings" = {
+      close = ["<Shift><Super>c"];
+      minimize = [""];
+      move-to-monitor-left = ["<Shift><Super>h"];
+      move-to-monitor-right = ["<Shift><Super>l"];
+      move-to-workspace-1 = ["<Shift><Super>exclam"];
+      move-to-workspace-2 = ["<Shift><Super>at"];
+      move-to-workspace-3 = ["<Shift><Super>sterling"];
+      move-to-workspace-4 = ["<Shift><Super>dollar"];
+      switch-applications = ["<Super>j"];
+      switch-applications-backward = ["<Super>k"];
+      switch-to-workspace-1 = ["<Super>1"];
+      switch-to-workspace-2 = ["<Super>2"];
+      switch-to-workspace-3 = ["<Super>3"];
+      switch-to-workspace-4 = ["<Super>4"];
+      switch-to-workspace-5 = ["<Super>5"];
+      switch-to-workspace-6 = ["<Super>6"];
+      switch-to-workspace-7 = ["<Super>7"];
+      switch-to-workspace-8 = ["<Super>8"];
+      switch-to-workspace-9 = ["<Super>9"];
+      switch-to-workspace-left = ["<Super>h"];
+      switch-to-workspace-right = ["<Super>l"];
+    };
+    "org/gnome/mutter" = {
+      center-new-windows = true;
+      dynamic-workspaces = true;
+      focus-change-on-pointer-rest = false;
+      overlay-key = "Super_L";
+      workspaces-only-on-primary = true;
+    };
+    "org/gnome/settings-daemon/plugins/media-keys" = {
+      play = ["<Alt><Super>space"];
+      volume-step = 5;
+    };
+    "org/gnome/settings-daemon/power" = {
+      idle-dim = false;
+      sleep-inactive-ac-timeout = 3600;
+      sleep-inactive-ac-type = "nothing";
+    };
+    "org/gnome/shell/keybindings" = {
+      switch-to-application-1 = [""];
+      switch-to-application-2 = [""];
+      switch-to-application-3 = [""];
+      switch-to-application-4 = [""];
+      switch-to-application-5 = [""];
+      switch-to-application-6 = [""];
+      switch-to-application-7 = [""];
+      switch-to-application-8 = [""];
+      switch-to-application-9 = [""];
+      toggle-application-view = ["<Primary><Super>p"];
+    };
+    "org/gnome/shell/ubuntu" = {
+      color-scheme = "prefer-dark";
+    };
+    "org/gnome/system/location" = {
+      enabled = false;
+    };
+    "org/gnome/desktop/wm/preferences" = {
+      audible-bell = false;
+      auto-raise = true;
+      focus-mode = "sloppy";
+    };
+  };
+}
+#+end_src
+
+*** home-manager tangle
+**** home.nix tangle
+:PROPERTIES:
+:ORDERED:  t
+:END:
+
++ home dir
+
+#+NAME: home.nix-home-dir
+#+BEGIN_SRC nix :noweb yes :tangle "~/.config/home-manager/home.nix"
+<<home.nix>>
+#+END_SRC
+  
++ current dir
+
+#+NAME: home.nix-current-dir
+#+BEGIN_SRC nix :noweb yes :tangle ".config/home-manager/home.nix"
+<<home.nix>>
+#+END_SRC
+
+**** firefox.nix tangle
+:PROPERTIES:
+:ORDERED:  t
+:END:
+
++ home dir
+
+#+NAME: firefox.nix-home-dir
+#+BEGIN_SRC nix :noweb yes :tangle "~/.config/home-manager/programs/firefox/firefox.nix"
+<<firefox.nix>>
+#+END_SRC
+  
++ current dir
+
+#+NAME: firefox.nix-current-dir
+#+BEGIN_SRC nix :noweb yes :tangle ".config/home-manager/programs/firefox/firefox.nix"
+<<firefox.nix>>
+#+END_SRC
+
+**** dconf.nix tangle
+:PROPERTIES:
+:ORDERED:  t
+:END:
+
++ home dir
+
+#+NAME: dconf.nix-home-dir
+#+BEGIN_SRC nix :noweb yes :tangle "~/.config/home-manager/programs/dconf/dconf.nix"
+<<dconf.nix>>
+#+END_SRC
+  
++ current dir
+
+#+NAME: dconf.nix-current-dir
+#+BEGIN_SRC nix :noweb yes :tangle ".config/home-manager/programs/dconf/dconf.nix"
+<<dconf.nix>>
+#+END_SRC
+
+** flake.nix
+*** flake.nix config
+
+#+NAME: flake.nix
+#+begin_src nix
+# ~/nixos-dotfiles-macbook-air/flake.nix
+{
+  description = "Home Manager configuration for djwilcox on castor";
+
+  inputs = {
+    # nixpkgs pointing to the unstable branch
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+
+    # nixpkgs pointing to the stable branch
+    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-25.05";
+
+    # nixpkgs master branch to get the latest packages no in unstable
+    nixpkgs-master.url = "github:nixos/nixpkgs/master";
+
+    # Home Manager itself
+    home-manager = {
+      url = "github:nix-community/home-manager"; # Defaults to master/unstable branch [1]
+      # Crucial: Ensure Home Manager uses the same Nixpkgs as this flake
+      # to prevent version conflicts and ensure consistency. [1, 2]
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = inputs@{
+    self,
+    nixpkgs,
+    nixpkgs-stable,
+    nixpkgs-master,
+    home-manager,
+    ... }:
+    let
+      # Define the system architecture
+      system = "x86_64-linux"; # For your MacBook Air 2011
+      # Define your username
+      username = "djwilcox"; # Replace with your actual username if different
+    in
+    {
+      # Define the Home Manager configuration for your user on this host
+      # The attribute name is typically "username@hostname" for standalone setups [3]
+      homeConfigurations."${username}@castor" = home-manager.lib.homeManagerConfiguration {
+        # Pass the Nixpkgs instance to Home Manager
+        pkgs = nixpkgs.legacyPackages.${system}; # Use the unstable nixpkgs for packages [3]
+        
+        # Pass extra arguments to your home.nix if needed.
+        # For example, if your home.nix needs access to the 'inputs' set:
+        extraSpecialArgs = {
+          pkgs-stable = import nixpkgs-stable {
+            inherit system;
+            config.allowUnfree = true;
+          };
+          pkgs-master = import nixpkgs-master {
+            inherit system;
+            config.allowUnfree = true;
+          };
+        };
+        
+        # Import your existing home.nix file from its relative path within this repository [3]
+        modules = [
+        ./.config/home-manager/home.nix # Your existing Home Manager configuration
+        ];
+      };
+    };
+}
+#+end_src
+
+*** flake.nix tangle
+
++ current dir
+
+#+NAME: flake.nix-current-dir
+#+BEGIN_SRC nix :noweb yes :tangle "flake.nix"
+<<flake.nix>>
+#+END_SRC
+
+** nixpkgs
+*** config.nix
+**** config.nix config
+
+#+NAME: config.nix
+#+begin_src nix
+{
+  allowUnfree = true;
+  http2 = false; # Disable HTTP/2
+  system-openssl = true; # Use system OpenSSL
+}
+#+end_src
+
+**** config.nix tangle
+
++ home dir
+
+#+NAME: config.nix-home-dir
+#+BEGIN_SRC nix :noweb yes :tangle "~/.config/nixpkgs/config.nix"
+<<config.nix>>
+#+END_SRC
+  
++ current dir
+
+#+NAME: config.nix-current-dir
+#+BEGIN_SRC nix :noweb yes :tangle ".config/nixpkgs/config.nix"
+<<config.nix>>
+#+END_SRC
+
+** tofi
+*** tofi config
+
+#+NAME: tofi
+#+BEGIN_SRC conf
+anchor = top
+#output = "eDP-1"
+border-width = 0
+drun-launch = true
+font = "~/.nix-profile/share/fonts/truetype/Iosevka-Bold.ttf"
+font-size = 12
+height = 32
+hint-font = false
+horizontal = true
+min-input-width = 0
+num-results = 10
+outline-width = 0
+padding-bottom = 0
+padding-left = 0
+padding-right = 0
+padding-top = 0
+prompt-color = #eee8d5
+prompt-text = ""
+input-color = #eee8d5
+result-spacing = 18
+selection-color = #002b36
+default-result-color = #eee8d5
+text-color = #eee8d5
+width = 100%
+default-result-background = #073642
+selection-background = #268bd2
+background-color = #005577 
+#background-color = #2b2b2b
+prompt-background=#002b36
+selection-background-padding = 4
+#selection-background-corner-radius = 6
+default-result-background-padding = 4
+#default-result-background-corner-radius = 6
+#+END_SRC
+
+*** tofi tangle
+
++ home dir
+
+#+NAME: tofi-home-dir
+#+BEGIN_SRC conf :noweb yes :tangle "~/.config/tofi/config"
+<<tofi>>
+#+END_SRC
+
++ current dir
+
+#+NAME: tofi-current-dir
+#+BEGIN_SRC conf :noweb yes :tangle ".config/tofi/config"
+<<tofi>>
+#+END_SRC
+
+** wlr-which-key
+*** wlr-which-key config
+
+#+NAME: wlr-which-key
+#+BEGIN_SRC yaml
+# Theming
+font: Fira Code 18
+background: "#282828d0"
+color: "#fbf1c7"
+border: "#005577"
+separator: " ➜ "
+border_width: 2
+corner_r: 10
+padding: 15 # Defaults to corner_r
+
+# Anchor and margin
+anchor: center # One of center, left, right, top, bottom, bottom-left, top-left, etc.
+# Only relevant when anchor is not center
+margin_right: 0
+margin_bottom: 0
+margin_left: 0
+margin_top: 0
+
+menu: 
+  "m": { desc: mpv, cmd: emacsclient -cF "((visibility . nil))" -e "(mpv-play-clipboard)" }
+  "d": { desc: ytdlp-mpv, cmd: /home/djwilcox/bin/ytdlp-mpv -i "$(wl-paste)" -t off }
+  "p": { desc: pinch, cmd: /home/djwilcox/bin/pinch -i "$(wl-paste)" }
+  "s":
+    desc: screenshot
+    submenu:
+      "l": { desc: laptop, cmd: grim -o eDP-1 }
+      "m": { desc: monitor, cmd: grim -o DP-3 }
+      "b": { desc: both, cmd: grim }
+#+END_SRC
+
+*** wlr-which-key tangle
+
++ home dir
+
+#+NAME: wlr-which-key-home-dir
+#+BEGIN_SRC yaml :noweb yes :tangle "~/.config/wlr-which-key/config.yaml"
+<<wlr-which-key>>
+#+END_SRC
+
++ current dir
+
+#+NAME: wlr-which-key-current-dir
+#+BEGIN_SRC yaml :noweb yes :tangle ".config/wlr-which-key/config.yaml"
+<<wlr-which-key>>
+#+END_SRC
+
+** systemd
+*** systemd config
+**** dictd.service
+
+#+NAME: dictd.service
+#+begin_src conf
+[Unit]
+Description=Dictionary Server Daemon
+After=network-online.target
+
+[Service]
+# Type should be 'forking' because dictd daemonizes by default.
+Type=forking
+# SuccessExitStatus is needed because dictd typically exits with 143 (SIGTERM)
+SuccessExitStatus=143
+
+# IMPORTANT: This environment variable is often required in NixOS/Home Manager 
+# environments for programs (like dictd) that rely on locale data.
+Environment=LOCALE_ARCHIVE=/run/current-system/sw/lib/locale/locale-archive
+
+# ExecStart: 
+# - Removed -f flag (Type=forking handles this)
+# - Added -s (syslog logging, helpful for debugging)
+# - Added --locale en_US.UTF-8 (dictd often requires this in Nix)
+ExecStart=%h/.nix-profile/bin/dictd -s -c %h/.dictd.conf --locale en_US.UTF-8
+
+# This is the key: Systemd creates this directory (/run/user/<UID>/dictd)
+# and makes it available to the service, solving the permission problem.
+RuntimeDirectory=dictd
+RuntimeDirectoryMode=0700
+
+# Security and management
+Restart=always
+
+[Install]
+WantedBy=default.target
+#+end_src
+
+**** status-bar.service
+
+#+NAME: status-bar.service
+#+BEGIN_SRC conf
+[Unit]
+Description=dwl Custom Status Bar Feeder
+After=graphical-session.target
+BindsTo=graphical-session.target
+
+[Service]
+ExecStart=/home/djwilcox/bin/status-bar
+Restart=on-failure
+RestartSec=5
+Type=simple
+
+[Install]
+WantedBy=graphical-session.target
+#+END_SRC
+
+**** wallpaper.service
+
+#+NAME: wallpaper.service
+#+BEGIN_SRC conf
+[Unit]
+Description=wbg wlroots wallpaper
+After=graphical-session.target
+BindsTo=graphical-session.target
+
+[Service]
+ExecStart=/home/djwilcox/bin/wallpaper
+Restart=on-failure
+RestartSec=5
+Type=simple
+
+[Install]
+WantedBy=graphical-session.target
+#+END_SRC
+
+*** systemd tangle
+**** dictd.service
+
++ home dir
+
+#+NAME: dictd.service-home-dir
+#+BEGIN_SRC conf :noweb yes :tangle "~/.config/systemd/user/dictd.service"
+<<dictd.service>>
+#+END_SRC
+
++ current dir
+
+#+NAME: dictd.service-current-dir
+#+BEGIN_SRC conf :noweb yes :tangle ".config/systemd/user/dictd.service"
+<<dictd.service>>
+#+END_SRC
+
+**** status-bar.service
+
++ home dir
+
+#+NAME: status-bar.service-home-dir
+#+BEGIN_SRC conf :noweb yes :tangle "~/.config/systemd/user/status-bar.service"
+<<status-bar.service>>
+#+END_SRC
+
++ current dir
+
+#+NAME: status-bar.service-current-dir
+#+BEGIN_SRC conf :noweb yes :tangle ".config/systemd/user/status-bar.service"
+<<status-bar.service>>
+#+END_SRC
+
+**** wallpaper.service
+
++ home dir
+
+#+NAME: wallpaper.service-home-dir
+#+BEGIN_SRC conf :noweb yes :tangle "~/.config/systemd/user/wallpaper.service"
+<<wallpaper.service>>
+#+END_SRC
+
++ current dir
+
+#+NAME: wallpaper.service-current-dir
+#+BEGIN_SRC conf :noweb yes :tangle ".config/systemd/user/wallpaper.service"
+<<wallpaper.service>>
+#+END_SRC
+
+*** enable dictd.service
+
+enable the dictd.service
+
+#+begin_src sh
+systemctl --user daemon-reload 
+systemctl --user enable dictd.service 
+systemctl --user start dictd.service 
+#+end_src
+
+*** enable status-bar.service
+
+enable the status-bar.service
+
+#+begin_src sh
+systemctl --user daemon-reload 
+systemctl --user enable status-bar.service 
+#+end_src
+
+*** enable wallpaper.service
+
+enable the wallpaper.service
+
+#+begin_src sh
+systemctl --user daemon-reload 
+systemctl --user enable wallpaper.service 
+#+end_src
 
 ** alacritty
 *** alacritty config
