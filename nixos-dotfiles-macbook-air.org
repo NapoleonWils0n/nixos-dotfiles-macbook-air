@@ -39,7 +39,9 @@ tree -aI .git
 │   ├── emacs
 │   │   ├── bookmarks
 │   │   ├── early-init.el
-│   │   └── init.el
+│   │   ├── init.el
+│   │   └── lisp
+│   │       └── gptel-custom-tools.el
 │   ├── git
 │   │   └── gitconfig
 │   ├── home-manager
@@ -90,8 +92,9 @@ tree -aI .git
 ├── .zshenv
 └── .zshrc
 
-28 directories, 35 files
+29 directories, 36 files
 #+end_example
+
 
 ** tangle dotfiles
 
