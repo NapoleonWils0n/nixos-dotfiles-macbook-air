@@ -4,10 +4,10 @@
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
 (("dotfiles"
  (filename . "~/git/nixos/nixos-dotfiles-macbook-air/nixos-dotfiles-macbook-air.org")
- (front-context-string . "#TITLE: nixos do")
+ (front-context-string . "#+TITLE: Nixos d")
  (rear-context-string)
  (position . 1)
- (last-modified 26700 7168 551600 6000))
+ (last-modified 26893 65190 927753 979000))
 ("desktop"
  (filename . "~/Desktop/")
  (front-context-string . "changelog.org\n  ")
