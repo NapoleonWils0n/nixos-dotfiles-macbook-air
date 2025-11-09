@@ -2022,7 +2022,7 @@ gptel is a simple Large Language Model chat client for Emacs, with support for m
  '(org-link ((t (:inherit link :underline nil)))))
 #+end_src
 
-**** early-init.el :early:
+**** early-init.el :earlyinit:
 :PROPERTIES:
 :header-args: :noweb-ref early-init.el :noweb-sep "\n\n"
 :END:
@@ -3077,7 +3077,7 @@ a old-string and a new-string, new-string will replace the old-string at the spe
 <<init.el>>
 #+END_SRC
 
-**** early-init.el :early:
+**** early-init.el :earlyinit:
 
 + home dir
 
