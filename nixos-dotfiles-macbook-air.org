@@ -8,94 +8,7 @@ dotfiles for nixos on a macbook air
 
 [[https://github.com/NapoleonWils0n/changelog?tab=readme-ov-file#nixos-dotfiles-macbook][nixos dotfiles changelog]]
 
-** tree :tree:
-
-tree listing of the dotfiles
-
-execute the code block below
-
-#+begin_example
-C-c C-c
-#+end_example
-
-and delete the RESULTS line above the example code block so it renders on github
-
-#+NAME: tree-listing
-#+begin_src sh :results output verbatim drawer replace :wrap example
-tree -aI .git
-#+end_src
-
-#+begin_example
-.
-├── .config
-│   ├── alacritty
-│   │   └── alacritty.toml
-│   ├── aria2
-│   │   └── aria2.conf
-│   ├── autostart
-│   │   └── nognome_notications.desktop
-│   ├── curl
-│   │   └── curlrc
-│   ├── emacs
-│   │   ├── bookmarks
-│   │   ├── early-init.el
-│   │   ├── init.el
-│   │   └── lisp
-│   │       └── gptel-custom-tools.el
-│   ├── git
-│   │   └── gitconfig
-│   ├── home-manager
-│   │   ├── home.nix
-│   │   └── programs
-│   │       ├── dconf
-│   │       │   └── dconf.nix
-│   │       └── firefox
-│   │           └── firefox.nix
-│   ├── mpv
-│   │   ├── input.conf
-│   │   └── mpv.conf
-│   ├── ncmpc
-│   │   └── config
-│   ├── nixpkgs
-│   │   └── config.nix
-│   ├── systemd
-│   │   └── user
-│   │       ├── dictd.service
-│   │       ├── status-bar.service
-│   │       └── wallpaper.service
-│   ├── tmux
-│   │   └── tmux.conf
-│   ├── wlr-which-key
-│   │   └── config.yaml
-│   ├── xkb
-│   │   ├── rules
-│   │   │   ├── evdev
-│   │   │   └── evdev.xml
-│   │   └── symbols
-│   │       ├── custom
-│   │       └── gb
-│   └── yt-dlp
-│       └── config
-├── .dictd.conf
-├── .dictrc
-├── flake.lock
-├── flake.nix
-├── .kodi
-│   └── userdata
-│       └── playercorefactory.xml
-├── .local
-│   └── share
-│       └── applications
-│           ├── firefox_vpn.desktop
-│           └── userapp-transmission-vpn.desktop
-├── nixos-dotfiles-macbook-air.org
-├── .zshenv
-└── .zshrc
-
-29 directories, 36 files
-#+end_example
-
-** tangle dotfiles :dotfiles:
+** tangle dotfiles
 
 tangle document
 
@@ -115,7 +28,7 @@ tangle from the command line
 emacs --batch -l org --eval '(org-babel-tangle-file "~/git/nixos/nixos-dotfiles/nixos-dotfiles-macbook-air.org")'
 #+end_src
 
-** flake update :update:
+** flake update
 
 update the flake
 
@@ -154,42 +67,10 @@ git log --oneline flake.lock
 
 to find the exact commit hash
 
-** tags :tags:
-
-#+begin_quote
-Tags can simply be typed into the buffer at the end of a headline. After a colon, M-TAB offers completion on tags. There is also a special command for inserting tags: 
-#+end_quote
-
-#+begin_example
-C-c C-q 
-#+end_example
-
-#+begin_src emacs-lisp
-(org-set-tags-command)
-#+end_src
-
-Once a system of tags has been set up, it can be used to collect related information into special lists.
-
-#+begin_example
-C-c / m
-#+end_example
-
-or
-
-#+begin_example
-C-c \
-#+end_example
-
-#+begin_src emacs-lisp
-(org-match-sparse-tree)
-#+end_src
-
-Create a sparse tree with all headlines matching a tags search.
-
 * nixos dotfiles macbook air
-** emacs :emacs:
-*** emacs config :config:
-**** init.el :init:
+** emacs
+*** emacs config
+**** init.el
 :PROPERTIES:
 :header-args: :noweb-ref init.el :noweb-sep "\n\n"
 :END:
@@ -2122,7 +2003,7 @@ gptel is a simple Large Language Model chat client for Emacs, with support for m
  '(org-link ((t (:inherit link :underline nil)))))
 #+end_src
 
-**** early-init.el :earlyinit:
+**** early-init.el
 :PROPERTIES:
 :header-args: :noweb-ref early-init.el :noweb-sep "\n\n"
 :END:
@@ -2200,7 +2081,7 @@ gptel is a simple Large Language Model chat client for Emacs, with support for m
 (add-to-list 'load-path "~/.config/emacs/lisp/")
 #+end_src
 
-**** lisp :lisp:
+**** lisp
 ***** gptel-custom-tools.el
 :PROPERTIES:
 :header-args: :noweb-ref gptel-custom-tools.el :noweb-sep "\n\n"
@@ -3099,7 +2980,7 @@ a old-string and a new-string, new-string will replace the old-string at the spe
  :category "emacs")
 #+end_src
 
-**** bookmarks config :bookmarks:
+**** bookmarks config
 
 #+NAME: emacs-bookmarks
 #+BEGIN_SRC emacs-lisp
@@ -3160,8 +3041,8 @@ a old-string and a new-string, new-string will replace the old-string at the spe
 )
 #+END_SRC
 
-*** emacs tangle :tangle:
-**** init.el :init:
+*** emacs tangle
+**** init.el
 ***** home dir
 
 #+NAME: emacs-init.el-home-dir
@@ -3176,8 +3057,7 @@ a old-string and a new-string, new-string will replace the old-string at the spe
 <<init.el>>
 #+END_SRC
 
-**** early-init.el :earlyinit:
-
+**** early-init.el
 ***** home dir
 
 #+NAME: emacs-early-init.el-home-dir
@@ -3192,7 +3072,7 @@ a old-string and a new-string, new-string will replace the old-string at the spe
 <<early-init.el>>
 #+END_SRC
 
-**** lisp :lisp:
+**** lisp
 ***** gptel-custom-tools.el
 ****** home dir
 
@@ -3207,25 +3087,24 @@ a old-string and a new-string, new-string will replace the old-string at the spe
 <<gptel-custom-tools.el>>
 #+END_SRC
 
-**** bookmarks :bookmarks:
-
-+ home dir
+**** bookmarks
+***** home dir
 
 #+NAME: emacs-bookmarks-home-dir
 #+BEGIN_SRC emacs-lisp :tangle "~/.config/emacs/bookmarks"
 <<emacs-bookmarks>>
 #+END_SRC
 
-+ current dir
+***** current dir
 
 #+NAME: emacs-bookmarks-current-dir
 #+BEGIN_SRC emacs-lisp :tangle ".config/emacs/bookmarks"
 <<emacs-bookmarks>>
 #+END_SRC
 
-** home-manager :nix:manager:
-*** home-manager config :config:
-**** home.nix :home:
+** home-manager
+*** home-manager config
+**** home.nix
 
 #+NAME: home.nix
 #+BEGIN_SRC nix
@@ -3461,7 +3340,7 @@ nixpkgs.overlays = [
 }
 #+END_SRC
 
-**** firefox.nix :firefox:
+**** firefox.nix
 
 #+NAME: firefox.nix
 #+begin_src nix
@@ -3683,7 +3562,7 @@ nixpkgs.overlays = [
 }
 #+end_src
 
-**** dconf.nix :dconf:
+**** dconf.nix
 
 #+NAME: dconf.nix
 #+begin_src nix
@@ -3777,8 +3656,8 @@ with lib.hm.gvariant;
 }
 #+end_src
 
-*** home-manager tangle :tangle:
-**** home.nix tangle :home:
+*** home-manager tangle
+**** home.nix tangle
 :PROPERTIES:
 :ORDERED:  t
 :END:
@@ -3796,11 +3675,10 @@ with lib.hm.gvariant;
 <<home.nix>>
 #+END_SRC
 
-**** firefox.nix tangle :firefox:
+**** firefox.nix tangle
 :PROPERTIES:
 :ORDERED:  t
 :END:
-
 ***** home dir
 
 #+NAME: firefox.nix-home-dir
@@ -3815,7 +3693,7 @@ with lib.hm.gvariant;
 <<firefox.nix>>
 #+END_SRC
 
-**** dconf.nix tangle :dconf:
+**** dconf.nix tangle
 :PROPERTIES:
 :ORDERED:  t
 :END:
@@ -3833,8 +3711,8 @@ with lib.hm.gvariant;
 <<dconf.nix>>
 #+END_SRC
 
-** flake.nix :nix:flake:
-*** flake.nix config :config:
+** flake.nix
+*** flake.nix config
 
 #+NAME: flake.nix
 #+begin_src nix
@@ -3903,7 +3781,7 @@ with lib.hm.gvariant;
 }
 #+end_src
 
-*** flake.nix tangle :tangle:
+*** flake.nix tangle
 **** current dir
 
 #+NAME: flake.nix-current-dir
@@ -3911,9 +3789,9 @@ with lib.hm.gvariant;
 <<flake.nix>>
 #+END_SRC
 
-** nixpkgs :nix:nixpkgs:
+** nixpkgs
 *** config.nix
-**** config.nix config :config:
+**** config.nix config
 
 #+NAME: config.nix
 #+begin_src nix
@@ -3924,7 +3802,7 @@ with lib.hm.gvariant;
 }
 #+end_src
 
-**** config.nix tangle :tangle:
+**** config.nix tangle
 ***** home dir
 
 #+NAME: config.nix-home-dir
@@ -3939,8 +3817,8 @@ with lib.hm.gvariant;
 <<config.nix>>
 #+END_SRC
 
-** tofi :tofi:
-*** tofi config :config:
+** tofi
+*** tofi config
 
 #+NAME: tofi
 #+BEGIN_SRC conf
@@ -3979,7 +3857,7 @@ default-result-background-padding = 4
 #default-result-background-corner-radius = 6
 #+END_SRC
 
-*** tofi tangle :tangle:
+*** tofi tangle
 **** home dir
 
 #+NAME: tofi-home-dir
@@ -3994,8 +3872,8 @@ default-result-background-padding = 4
 <<tofi>>
 #+END_SRC
 
-** wlr-which-key :wlr:
-*** wlr-which-key config :config:
+** wlr-which-key
+*** wlr-which-key config
 
 #+NAME: wlr-which-key
 #+BEGIN_SRC yaml
@@ -4029,7 +3907,7 @@ menu:
       "b": { desc: both, cmd: grim }
 #+END_SRC
 
-*** wlr-which-key tangle :tangle:
+*** wlr-which-key tangle
 **** home dir
 
 #+NAME: wlr-which-key-home-dir
@@ -4044,9 +3922,9 @@ menu:
 <<wlr-which-key>>
 #+END_SRC
 
-** systemd :systemd:
-*** systemd config :config:
-**** dictd.service :dictd:
+** systemd
+*** systemd config
+**** dictd.service
 
 #+NAME: dictd.service
 #+begin_src conf
@@ -4082,7 +3960,7 @@ Restart=always
 WantedBy=default.target
 #+end_src
 
-**** status-bar.service :statusbar:
+**** status-bar.service
 
 #+NAME: status-bar.service
 #+BEGIN_SRC conf
@@ -4120,8 +3998,8 @@ Type=simple
 WantedBy=graphical-session.target
 #+END_SRC
 
-*** systemd tangle :tangle:
-**** dictd.service :dictd:
+*** systemd tangle
+**** dictd.service
 ***** home dir
 
 #+NAME: dictd.service-home-dir
@@ -4136,7 +4014,7 @@ WantedBy=graphical-session.target
 <<dictd.service>>
 #+END_SRC
 
-**** status-bar.service :statusbar:
+**** status-bar.service
 ***** home dir
 
 #+NAME: status-bar.service-home-dir
@@ -4151,7 +4029,7 @@ WantedBy=graphical-session.target
 <<status-bar.service>>
 #+END_SRC
 
-**** wallpaper.service :wallpaper:
+**** wallpaper.service
 ***** home dir
 
 #+NAME: wallpaper.service-home-dir
@@ -4194,8 +4072,8 @@ systemctl --user daemon-reload
 systemctl --user enable wallpaper.service 
 #+end_src
 
-** alacritty :alacritty:
-*** alacritty config :config:
+** alacritty
+*** alacritty config
 
 #+NAME: alacritty
 #+BEGIN_SRC toml
@@ -4262,7 +4140,7 @@ y = 4
 hide_when_typing = false
 #+END_SRC
 
-*** alacritty tangle :tangle:
+*** alacritty tangle
 **** home dir
 
 #+NAME: alacritty-home-dir
@@ -4277,9 +4155,9 @@ hide_when_typing = false
 <<alacritty>>
 #+END_SRC
 
-** zsh :zsh:
-*** zsh config :config:
-**** zshrc :zshrc:
+** zsh
+*** zsh config
+**** zshrc
 
 #+NAME: zshrc
 #+BEGIN_SRC conf
@@ -4545,7 +4423,7 @@ _vpn-route() {
 compdef _vpn-route vpn-route
 #+END_SRC
 
-**** zshenv :zshenv:
+**** zshenv
 
 #+NAME: zshenv
 #+begin_src conf
@@ -4603,8 +4481,8 @@ if [ -f "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ];
 fi
 #+end_src
 
-*** zsh tangle :tangle:
-**** zshrc tangle :zshrc:
+*** zsh tangle
+**** zshrc tangle
 ***** home dir
 
 #+NAME: zshrc-home-dir
@@ -4619,7 +4497,7 @@ fi
 <<zshrc>>
 #+END_SRC
 
-**** zshenv tangle :zshenv:
+**** zshenv tangle
 ***** home dir
 
 #+NAME: zshenv-home-dir
@@ -4634,8 +4512,8 @@ fi
 <<zshenv>>
 #+END_SRC
 
-** tmux :tmux:
-*** tmux config :config:
+** tmux
+*** tmux config
 
 #+NAME: tmux
 #+BEGIN_SRC conf
@@ -4767,7 +4645,7 @@ set-option -g set-titles on
 set-option -g set-titles-string "#W"
 #+END_SRC
 
-*** tmux tangle :tangle:
+*** tmux tangle
 **** home dir
 
 #+NAME: tmux-home-dir
@@ -4782,8 +4660,8 @@ set-option -g set-titles-string "#W"
 <<tmux>>
 #+END_SRC
 
-** mpv :mpv:
-*** mpv config :config:
+** mpv
+*** mpv config
 **** input.conf
 
 #+NAME: input.conf
@@ -4899,7 +4777,7 @@ profile=hwdec
 cache=no
 #+END_SRC
 
-*** mpv tangle :tangle:
+*** mpv tangle
 **** input.conf tangle
 ***** home dir
 
@@ -4930,8 +4808,8 @@ cache=no
 <<mpv.conf>>
 #+END_SRC
 
-** yt-dlp :ytdlp:
-*** yt-dlp config :config:
+** yt-dlp
+*** yt-dlp config
 
 #+NAME: yt-dlp
 #+BEGIN_SRC conf
@@ -4954,7 +4832,7 @@ cache=no
 -o '%(title)s-[%(id)s]-%(upload_date>%Y-%m-%d)s.%(ext)s'
 #+END_SRC
 
-*** yt-dlp tangle :tangle:
+*** yt-dlp tangle
 **** home dir
 
 #+NAME: yt-dlp-home-dir
@@ -4969,8 +4847,8 @@ cache=no
 <<yt-dlp>>
 #+END_SRC
 
-** dict :dictd:
-*** dict config :config:
+** dict
+*** dict config
 **** dictrc
 
 #+NAME: dictrc
@@ -5000,7 +4878,7 @@ database wiktionary-en {
 }
 #+end_src
 
-*** dict tangle :tangle:
+*** dict tangle
 **** dictrc
 ***** home dir
 
@@ -5031,8 +4909,8 @@ database wiktionary-en {
 <<dictd.conf>>
 #+END_SRC
 
-** kodi :kodi:
-*** kodi config :config:
+** kodi
+*** kodi config
 **** playercorefactory.xml
 
 #+NAME: playercorefactory.xml
@@ -5130,7 +5008,7 @@ database wiktionary-en {
 </playercorefactory>
 #+END_SRC
 
-*** kodi tangle :tangle:
+*** kodi tangle
 **** playercorefactory.xml tangle
 ***** home dir
 
@@ -5146,8 +5024,8 @@ database wiktionary-en {
 <<playercorefactory.xml>>
 #+END_SRC
 
-** aria2c :aria2c:
-*** aria2c config :config:
+** aria2c
+*** aria2c config
 
 #+NAME: aria2c
 #+begin_src conf
@@ -5193,7 +5071,7 @@ disable-ipv6=true
 http-accept-gzip=true
 #+end_src
 
-*** aria2c tangle :tangle:
+*** aria2c tangle
 **** home dir
   
 #+NAME: aria2c-home-dir
@@ -5208,8 +5086,8 @@ http-accept-gzip=true
 <<aria2c>>
 #+end_src
 
-** ncmpc :ncmpc:
-*** ncmpc config :config:
+** ncmpc
+*** ncmpc config
 
 #+NAME: ncmpc
 #+BEGIN_SRC conf
@@ -5238,7 +5116,7 @@ color status-time  = black
 color alert = black,bold
 #+END_SRC
 
-*** ncmpc tangle :tangle:
+*** ncmpc tangle
 **** home dir
 
 #+NAME: ncmpc-home-dir
@@ -5253,10 +5131,10 @@ color alert = black,bold
 <<ncmpc>>
 #+END_SRC
 
-** xkb :xkb:
-*** rules :rules:
-**** evdev :evdev:
-***** evdev config :config:
+** xkb
+*** rules
+**** evdev
+***** evdev config
 
 #+NAME: evdev
 #+BEGIN_SRC conf
@@ -5266,7 +5144,7 @@ color alert = black,bold
 ! include %S/evdev
 #+END_SRC
 
-***** evdev tangle :tangle:
+***** evdev tangle
 ****** home dir
 
 #+NAME: evdev-home-dir
@@ -5281,8 +5159,8 @@ color alert = black,bold
 <<evdev>>
 #+END_SRC
 
-**** evdev.xml :evdevxml:
-***** evdev.xml config :config:
+**** evdev.xml
+***** evdev.xml config
 
 #+NAME: evdev.xml
 #+BEGIN_SRC conf
@@ -5338,9 +5216,9 @@ color alert = black,bold
 <<evdev.xml>>
 #+END_SRC
 
-*** symbols :symbols:
-**** custom :custom:
-***** custom config :config:
+*** symbols
+**** custom
+***** custom config
 
 #+NAME: custom
 #+BEGIN_SRC conf
@@ -5354,7 +5232,7 @@ xkb_symbols "alt_win_ctrl" {
 };
 #+END_SRC
 
-***** custom tangle :tangle:
+***** custom tangle
 ****** home dir
 
 #+NAME: custom-home-dir
@@ -5369,8 +5247,8 @@ xkb_symbols "alt_win_ctrl" {
 <<custom>>
 #+END_SRC
 
-**** gb :gb:
-***** gb config :config:
+**** gb
+***** gb config
 
 #+NAME: gb
 #+BEGIN_SRC conf
@@ -5390,7 +5268,7 @@ xkb_symbols "alt_win_ctrl" {
 };
 #+END_SRC
 
-***** gb tangle :tangle:
+***** gb tangle
 ****** home dir
 
 #+NAME: gb-home-dir
@@ -5405,8 +5283,8 @@ xkb_symbols "alt_win_ctrl" {
 <<gb>>
 #+END_SRC
 
-** autostart :autostart:
-*** autostart config :config:
+** autostart
+*** autostart config
 **** nognome_notications config
 
 #+NAME: nognome_notications
@@ -5421,7 +5299,7 @@ Name=nognome_notifications
 Comment=nognome_notifications
 #+END_SRC
 
-*** autostart tangle :tangle:
+*** autostart tangle
 **** nognome_notications tangle
 ***** home dir
 
@@ -5437,9 +5315,9 @@ Comment=nognome_notifications
 <<nognome_notications>>
 #+END_SRC
 
-** desktop files :desktop:
-*** desktop files config :config:
-**** firefox vpn config :firefoxvpn:
+** desktop files
+*** desktop files config
+**** firefox vpn config
 
 #+NAME: firefox-vpn-desktop
 #+begin_src conf
@@ -5469,7 +5347,7 @@ Exec=/run/wrappers/bin/doas /home/djwilcox/bin/namespace firefox --ProfileManage
 Name=Profile Manager
 #+end_src
 
-**** transmission config :transmission:
+**** transmission config
 
 #+NAME: transmission-desktop
 #+begin_src conf
@@ -5483,8 +5361,8 @@ StartupNotify=true
 Terminal=false
 #+end_src
 
-*** desktop files tangle :tangle:
-**** firefox-vpn tangle :firefoxvpn:
+*** desktop files tangle
+**** firefox-vpn tangle
 ***** home dir
   
 #+NAME: firefox-vpn-desktop-home-dir
@@ -5499,7 +5377,7 @@ Terminal=false
 <<firefox-vpn-desktop>>
 #+END_SRC
 
-**** transmission tangle :transmission:
+**** transmission tangle
 ***** home dir
   
 #+NAME: transmission-desktop-home-dir
@@ -5514,8 +5392,8 @@ Terminal=false
 <<transmission-desktop>>
 #+END_SRC
 
-** gitconfig :gitconfig:
-*** gitconfig config :gitconfig:
+** gitconfig
+*** gitconfig config
 
 #+NAME: gitconfig
 #+BEGIN_SRC conf
@@ -5526,7 +5404,7 @@ email = danieljwilcox@gmail.com
 ui = true
 #+END_SRC
 
-*** gitconfig tangle :tangle:
+*** gitconfig tangle
 **** home dir
 
 #+NAME: gitconfig-home-dir
@@ -5541,15 +5419,15 @@ ui = true
 <<gitconfig>>
 #+END_SRC
 
-** curl :curl:
-*** curl config :config:
+** curl
+*** curl config
 
 #+NAME: curl
 #+BEGIN_SRC conf
 ssl_cipher_list = "DEFAULT"
 #+END_SRC
 
-*** curl tangle :tangle:
+*** curl tangle
 **** home dir
 
 #+NAME: curl-home-dir
