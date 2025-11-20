@@ -7,8 +7,6 @@
 
 dotfiles for nixos on a macbook air
 
-[[https://github.com/NapoleonWils0n/changelog?tab=readme-ov-file#nixos-dotfiles-macbook][nixos dotfiles changelog]]
-
 *** tangle dotfiles
 
 tangle document
