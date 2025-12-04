@@ -72,7 +72,6 @@
     dict
     dictdDBs.wordnet
     dictdDBs.wiktionary
-    dconf-editor
     fd
     fdk-aac-encoder
     ffmpeg-full
@@ -81,7 +80,6 @@
     fira-code
     gcc
     git
-    gnome-tweaks
     gnumake
     grim
     graphviz
@@ -140,9 +138,6 @@ services = {
     enable = true;
     package = pkgs.emacs-pgtk;
   };
-  gnome-keyring = {
-    enable = true;
-  };
   gpg-agent = {
     enable = true;
     extraConfig = ''
@@ -168,7 +163,7 @@ services = {
 # systemd
 systemd.user.sessionVariables = {
   SSH_AUTH_SOCK = "/run/user/1000/keyring/ssh";
-  WAYLAND_DISPLAY = "wayland-0";
+  #WAYLAND_DISPLAY = "wayland-0";
 };
 
 # gtk
