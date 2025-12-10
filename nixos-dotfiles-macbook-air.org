@@ -3144,7 +3144,7 @@ a old-string and a new-string, new-string will replace the old-string at the spe
   # You should not change this value, even if you update Home Manager. If you do
   # want to update the value, then make sure to first check the Home Manager
   # release notes.
-  home.stateVersion = "25.05"; # Please read the comment before changing.
+  home.stateVersion = "25.11"; # Please read the comment before changing.
 
   imports = [
     ./programs/dconf/dconf.nix
@@ -3624,7 +3624,7 @@ nixpkgs.overlays = [
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     # nixpkgs pointing to the stable branch
-    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-25.05";
+    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-25.11";
 
     # nixpkgs master branch to get the latest packages no in unstable
     nixpkgs-master.url = "github:nixos/nixpkgs/master";
