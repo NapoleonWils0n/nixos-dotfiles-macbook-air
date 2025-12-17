@@ -1368,11 +1368,12 @@
         gptel-post-response-functions #'gptel-end-of-response
         gptel-expert-commands t)
   :config
-  (setq gptel-model 'gemini-2.5-flash
-        gptel-backend (gptel-make-gemini "Gemini"
+  (setq gptel-model 'gemini-3-flash-preview)
+  (setq gptel-backend (gptel-make-gemini "Gemini"
                         :key (gptel-api-key-from-auth-source "generativelanguage.googleapis.com")
-                        :stream t))
-  
+                        :stream t
+                        :models '(gemini-2.5-flash
+                                  gemini-3-flash-preview)))
 
 ;; ----------------------------------------------------------------------------------
 ;; display the Gemini buffer in same window
