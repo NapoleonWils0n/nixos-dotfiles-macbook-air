@@ -83,7 +83,6 @@
     gnumake
     grim
     graphviz
-    handbrake
     imagemagick
     iosevka
     libnotify
