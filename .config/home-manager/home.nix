@@ -79,6 +79,7 @@
     file
     fira-code
     gcc
+    gimp-with-plugins
     git
     gnumake
     grim
