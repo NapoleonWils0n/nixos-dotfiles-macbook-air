@@ -4556,14 +4556,16 @@ fi
 # .tmux.conf
 
 # vi mode
-#set-option -g default-shell "/usr/local/bin/zsh"
-#set-option -g default-command "/usr/local/bin/zsh"
-#set -g default-command "${SHELL}"
 set-window-option -g mode-keys vi
 
-# Some tweaks to the status line
-#set -g status-right "%H:%M" # date and time
-set -g status-right "" # date and time
+# Remove the session name from the left side
+set -g status-left " "
+
+# Put the window list on the left
+set -g status-justify left
+
+# Put the session name on the right
+set -g status-right "[#S]" 
 set -g status-right-style fg=color245
 
 # If running inside tmux ($TMUX is set), then change the status line to red
@@ -4666,10 +4668,6 @@ bind-key -T choice-mode-vi L send-keys -X tree-expand-all
 bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "wl-copy && wl-paste -n | wl-copy -p"
 bind-key p run "wl-paste -n | tmux load-buffer - ; tmux paste-buffer"
 
-# urlview as context and url view
-bind-key u capture-pane \; save-buffer /tmp/tmux-buffer \; \
-new-window -n "urlview" '$SHELL -c "urlview < /tmp/tmux-buffer"'
-
 # tmux auto rename pane 
 set-option -g status-interval 1
 set-option -g allow-rename on
@@ -4679,6 +4677,10 @@ set-option -g automatic-rename-format "#{?#{==:#{pane_current_command},zsh},#{b:
 # tmux title program name
 set-option -g set-titles on
 set-option -g set-titles-string "#W"
+
+# resize 
+setw -g aggressive-resize on
+set -g focus-events on
 #+END_SRC
 
 *** tmux tangle
