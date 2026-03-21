@@ -1060,6 +1060,23 @@ Embark makes it easy to choose a command to run based on what is near point, bot
 
 
 ;; ----------------------------------------------------------------------------------
+;; imv image viewer
+;; ----------------------------------------------------------------------------------
+
+(defun dired-imv-marked-files ()
+  "Open all marked files in a single instance of imv."
+  (interactive)
+  (let ((files (dired-get-marked-files)))
+    (if files
+        (apply 'start-process "imv-process" nil "imv" files)
+      (message "No files marked!"))))
+
+;; Bind it to your preferred key
+(with-eval-after-load 'dired
+  (define-key dired-mode-map (kbd "C-c i") 'dired-imv-marked-files))
+
+
+;; ----------------------------------------------------------------------------------
 ;; fd-dired
 ;; ----------------------------------------------------------------------------------
 
@@ -3246,6 +3263,7 @@ a old-string and a new-string, new-string will replace the old-string at the spe
     grim
     graphviz
     imagemagick
+    imv
     iosevka
     libnotify
     libwebp
@@ -3258,7 +3276,6 @@ a old-string and a new-string, new-string will replace the old-string at the spe
     nerd-fonts.fira-code
     noto-fonts-color-emoji
     nixd
-    nsxiv
     oath-toolkit
     openvpn
     pandoc
@@ -4890,6 +4907,41 @@ cache=no
 <<yt-dlp>>
 #+END_SRC
 
+** imv
+*** imv config
+
+#+NAME: imv
+#+BEGIN_SRC toml
+[options]
+# Fix the background color to black
+background = 000000
+# Ensure it starts in a clean way
+fullscreen = false
+
+[binds]
+# Map 'h' and 'l' (Vim style) for the Ducky Mini
+l = next
+h = prev
+
+# Close with 'q'
+q = quit
+#+END_SRC
+
+*** imv tangle
+**** home dir
+
+#+NAME: imv-home-dir
+#+BEGIN_SRC conf :tangle "~/.config/imv/config"
+<<imv>>
+#+END_SRC
+
+**** current dir
+
+#+NAME: imv-current-dir
+#+BEGIN_SRC conf :tangle ".config/imv/config"
+<<imv>>
+#+END_SRC
+
 ** dict
 *** dict config
 **** dictrc
@@ -5390,6 +5442,19 @@ Exec=/run/wrappers/bin/doas /home/djwilcox/bin/namespace firefox --ProfileManage
 Name=Profile Manager
 #+end_src
 
+**** imv config
+
+#+NAME: imv-desktop
+#+begin_src conf
+[Desktop Entry]
+Type=Application
+Name=imv
+Exec=imv %F
+Icon=image-viewer
+Terminal=false
+MimeType=image/jpeg;image/png;image/gif;image/webp;
+#+end_src
+
 *** desktop files tangle
 **** firefox-vpn tangle
 ***** home dir
@@ -5404,6 +5469,21 @@ Name=Profile Manager
 #+NAME: firefox-vpn-desktop-current-dir
 #+BEGIN_SRC conf :tangle ".local/share/applications/firefox_vpn.desktop"
 <<firefox-vpn-desktop>>
+#+END_SRC
+
+**** imv tangle
+***** home dir
+  
+#+NAME: imv-desktop-home-dir
+#+BEGIN_SRC conf :tangle "~/.local/share/applications/imv.desktop"
+<<imv-desktop>>
+#+END_SRC
+
+***** current dir
+
+#+NAME: imv-desktop-current-dir
+#+BEGIN_SRC conf :tangle ".local/share/applications/imv.desktop"
+<<imv-desktop>>
 #+END_SRC
 
 ** gitconfig

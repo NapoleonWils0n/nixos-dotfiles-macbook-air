@@ -86,6 +86,7 @@
     grim
     graphviz
     imagemagick
+    imv
     iosevka
     libnotify
     libwebp
@@ -98,7 +99,6 @@
     nerd-fonts.fira-code
     noto-fonts-color-emoji
     nixd
-    nsxiv
     oath-toolkit
     openvpn
     pandoc
