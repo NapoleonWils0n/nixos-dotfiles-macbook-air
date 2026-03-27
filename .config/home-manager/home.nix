@@ -22,7 +22,6 @@
   home.stateVersion = "25.05"; # Please read the comment before changing.
 
   imports = [
-    ./programs/dconf/dconf.nix
     ./programs/firefox/firefox.nix
   ];
  
@@ -113,6 +112,7 @@
     shellcheck-minimal
     sox
     tofi
+    tor-browser
     tmux
     translate-shell
     tree
