@@ -69,6 +69,7 @@
     chromium
     curl
     csvkit
+    cryptsetup
     deno
     dict
     dictdDBs.wordnet
