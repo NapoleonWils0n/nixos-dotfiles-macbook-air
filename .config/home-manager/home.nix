@@ -77,7 +77,7 @@
     fd
     fdk-aac-encoder
     ffmpeg-full
-    pkgs-master.ffmpegthumbnailer
+    ffmpegthumbnailer
     file
     fira-code
     gcc
@@ -119,10 +119,10 @@
     tree
     ts
     unzip
-    pkgs-master.yt-dlp
+    yt-dlp
     wbg
     wget
-    pkgs-master.widevine-cdm
+    widevine-cdm
     wl-clipboard
     wlrctl
     wlr-which-key

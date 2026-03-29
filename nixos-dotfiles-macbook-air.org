@@ -3205,7 +3205,7 @@ a old-string and a new-string, new-string will replace the old-string at the spe
     fd
     fdk-aac-encoder
     ffmpeg-full
-    pkgs-master.ffmpegthumbnailer
+    ffmpegthumbnailer
     file
     fira-code
     gcc
@@ -3247,10 +3247,10 @@ a old-string and a new-string, new-string will replace the old-string at the spe
     tree
     ts
     unzip
-    pkgs-master.yt-dlp
+    yt-dlp
     wbg
     wget
-    pkgs-master.widevine-cdm
+    widevine-cdm
     wl-clipboard
     wlrctl
     wlr-which-key
