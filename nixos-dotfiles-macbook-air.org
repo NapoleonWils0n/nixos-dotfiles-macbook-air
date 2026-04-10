@@ -3223,14 +3223,6 @@ a old-string and a new-string, new-string will replace the old-string at the spe
   }; 
 
 
-  # --- OBS Studio Configuration for wlrobs ---
-  programs.obs-studio = {
-    enable = true;
-    plugins = with pkgs; [
-      obs-studio-plugins.wlrobs
-    ];
-  };
-
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = with pkgs; [
@@ -3269,6 +3261,7 @@ a old-string and a new-string, new-string will replace the old-string at the spe
     iosevka
     libnotify
     libwebp
+    jq
     kodi-wayland
     mpc
     mpd
@@ -3279,6 +3272,8 @@ a old-string and a new-string, new-string will replace the old-string at the spe
     noto-fonts-color-emoji
     nixd
     oath-toolkit
+    obs-cmd
+    obs-studio
     openvpn
     pandoc
     pinentry-curses
@@ -3344,7 +3339,6 @@ services = {
 # systemd
 systemd.user.sessionVariables = {
   SSH_AUTH_SOCK = "/run/user/1000/keyring/ssh";
-  #WAYLAND_DISPLAY = "wayland-0";
 };
 
 # gtk

@@ -45,14 +45,6 @@
   }; 
 
 
-  # --- OBS Studio Configuration for wlrobs ---
-  programs.obs-studio = {
-    enable = true;
-    plugins = with pkgs; [
-      obs-studio-plugins.wlrobs
-    ];
-  };
-
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = with pkgs; [
@@ -91,6 +83,7 @@
     iosevka
     libnotify
     libwebp
+    jq
     kodi-wayland
     mpc
     mpd
@@ -101,6 +94,8 @@
     noto-fonts-color-emoji
     nixd
     oath-toolkit
+    obs-cmd
+    obs-studio
     openvpn
     pandoc
     pinentry-curses
@@ -166,7 +161,6 @@ services = {
 # systemd
 systemd.user.sessionVariables = {
   SSH_AUTH_SOCK = "/run/user/1000/keyring/ssh";
-  #WAYLAND_DISPLAY = "wayland-0";
 };
 
 # gtk
