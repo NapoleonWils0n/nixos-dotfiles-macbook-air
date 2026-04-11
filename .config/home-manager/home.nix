@@ -107,7 +107,6 @@
     ripgrep
     shellcheck-minimal
     sox
-    tofi
     tor-browser
     tmux
     translate-shell
@@ -115,7 +114,6 @@
     ts
     unzip
     yt-dlp
-    wbg
     wget
     widevine-cdm
     wl-clipboard
