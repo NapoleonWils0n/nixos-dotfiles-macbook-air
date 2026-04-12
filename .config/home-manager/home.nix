@@ -97,6 +97,7 @@
     obs-studio
     openvpn
     pandoc
+    parted
     pinentry-curses
     playerctl
     python313Packages.python-lsp-server
