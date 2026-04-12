@@ -62,7 +62,6 @@
     curl
     csvkit
     cryptsetup
-    deno
     dict
     dictdDBs.wordnet
     dictdDBs.wiktionary
